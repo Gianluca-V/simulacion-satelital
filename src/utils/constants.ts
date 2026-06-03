@@ -3,11 +3,13 @@ import type { FrequencyBandInfo, OrbitTypeInfo, WeatherCondition, WeatherState }
 export const EARTH_RADIUS = 6371
 export const SCENE_SCALE = 100
 export const EARTH_ROTATION_RATE = 7.2921159e-5
-export const SPEED_OF_LIGHT = 299792
+export const SPEED_OF_LIGHT = 299792458
 export const BOLTZMANN_CONST = 1.380649e-23
 export const BOLTZMANN_DB = -228.6
 export const EARTH_MASS = 5.972e24
 export const GRAVITATIONAL_CONST = 6.6743e-11
+export const EARTH_GM = 3.986004418e5
+export const MS_TO_S = 0.001
 
 export const ORBIT_TYPES: OrbitTypeInfo[] = [
   { type: 'LEO', minAlt: 200, maxAlt: 2000, label: 'LEO - Baja', description: '200-2000 km' },
@@ -40,11 +42,25 @@ export const WEATHER_PARAMS: Record<WeatherCondition, Omit<WeatherState, 'condit
 export const DEFAULT_WEATHER: WeatherState = { condition: 'Clear', ...WEATHER_PARAMS.Clear }
 
 export const SATELLITE_TX_POWERS: Record<string, number> = { LEO: 10, MEO: 25, GEO: 50 }
-export const SAT_TX_GAIN = 20
-export const SAT_RX_GAIN = 20
+export const SAT_TX_GAIN = 30
+export const SAT_RX_GAIN = 30
 export const GS_TX_POWER = 200
 export const GS_TX_GAIN = 40
 export const GS_RX_GAIN = 40
 export const DEFAULT_BANDWIDTH = 10e6
+export const DEFAULT_BITRATE = 1e6
 export const RECEIVER_NOISE_FIGURE = 3
+export const REFERENCE_NOISE_TEMP = 290
+export const MIN_EB_NO = 8.5
+export const SATELLITE_VELOCITY_MS = 7000 / 3.6
 export const PROCESSING_DELAY_MS = 5
+export const SAT_DEFAULT_FREQUENCY = 12
+export const GS_DEFAULT_FREQUENCY = 14
+export const DEFAULT_ALT_LEO = 600
+export const DEFAULT_ALT_MEO = 20200
+export const DEFAULT_ALT_GEO = 35786
+export const DEFAULT_INCL_LEO = 51.6
+export const DEFAULT_INCL_MEO = 55
+export const DEFAULT_INCL_GEO = 0
+export const SIMULATION_SPEED = 500
+export const MAX_LOG_MESSAGES = 50

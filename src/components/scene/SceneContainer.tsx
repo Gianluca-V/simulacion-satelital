@@ -1,4 +1,4 @@
-import { Suspense, useRef, useMemo } from 'react'
+import { Suspense, useRef, useMemo, useEffect } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
@@ -11,7 +11,7 @@ import { CommunicationLink } from './CommunicationLink'
 import { WeatherParticles } from './WeatherParticles'
 import { useSimulationStore } from '../../stores/simulationStore'
 import { useUIStore } from '../../stores/uiStore'
-import { EARTH_RADIUS, SCENE_SCALE } from '../../utils/constants'
+import { EARTH_RADIUS, SCENE_SCALE, SIMULATION_SPEED } from '../../utils/constants'
 
 const S = (v: number) => v / SCENE_SCALE
 const DEFAULT_CAM_POS = new THREE.Vector3(S(EARTH_RADIUS * 2.5), S(EARTH_RADIUS * 1.2), S(EARTH_RADIUS * 2.5))
@@ -24,6 +24,15 @@ function SceneContent() {
   const controlsRef = useRef<any>(null)
   const { camera } = useThree()
   const wasFollowingRef = useRef(false)
+  const shiftRef = useRef(false)
+
+  useEffect(() => {
+    const onDown = (e: KeyboardEvent) => { if (e.key === 'Shift') shiftRef.current = true }
+    const onUp = (e: KeyboardEvent) => { if (e.key === 'Shift') shiftRef.current = false }
+    window.addEventListener('keydown', onDown)
+    window.addEventListener('keyup', onUp)
+    return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp) }
+  }, [])
 
   const satellites = useSimulationStore((s) => s.satellites)
   const groundStations = useSimulationStore((s) => s.groundStations)
@@ -40,9 +49,10 @@ function SceneContent() {
   const activeMessages = useMemo(() => messages.filter(m => m.status === 'transmitting' || m.status === 'completed'), [messages])
 
   useFrame((_, delta) => {
-    useSimulationStore.getState().tick(delta * 20)
+    useSimulationStore.getState().tick(delta * SIMULATION_SPEED)
     const controls = controlsRef.current
     if (!controls) return
+    controls.zoomSpeed = shiftRef.current ? 1.5 : 0.25
     const follow = useSimulationStore.getState().followNodeId
     if (follow) {
       const node = getNodeById(follow)

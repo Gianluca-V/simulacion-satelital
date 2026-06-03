@@ -27,7 +27,7 @@ export function DraggablePanel({ panelId, defaultPosition, children, style }: Pr
   return (
     <div style={{ position: 'absolute', left: pos.x, top: pos.y, zIndex: 850, ...style }}>
       {children}
-      <div onMouseDown={handleGrabMouseDown} style={{ position: 'absolute', right: 0, bottom: 0, width: 18, height: 18, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', cursor: 'nwse-resize', padding: 2, borderBottomRightRadius: 10, userSelect: 'none' }}>
+      <div onMouseDown={handleGrabMouseDown} style={{ position: 'absolute', right: 0, bottom: 0, width: 18, height: 18, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', cursor: 'grab', padding: 2, borderBottomRightRadius: 10, userSelect: 'none' }}>
         <svg width="10" height="10" viewBox="0 0 10 10" style={{ display: 'block' }}>
           <line x1="3" y1="10" x2="10" y2="3" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
           <line x1="6" y1="10" x2="10" y2="6" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />

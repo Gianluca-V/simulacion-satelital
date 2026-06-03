@@ -34,9 +34,9 @@ export const useUIStore = create<UIState>((set) => ({
   activePanel: null,
   panelPositions: {},
 
-  toggleNodePanel: () => set((s) => { const next = !s.showNodePanel; return { showNodePanel: next, showTelemetry: next ? false : s.showTelemetry, showMessageLog: next ? false : s.showMessageLog } }),
-  toggleTelemetry: () => set((s) => { const next = !s.showTelemetry; return { showTelemetry: next, showNodePanel: next ? false : s.showNodePanel, showMessageLog: next ? false : s.showMessageLog } }),
-  toggleMessageLog: () => set((s) => { const next = !s.showMessageLog; return { showMessageLog: next, showTelemetry: next ? false : s.showTelemetry, showNodePanel: next ? false : s.showNodePanel } }),
+  toggleNodePanel: () => set((s) => ({ showNodePanel: !s.showNodePanel })),
+  toggleTelemetry: () => set((s) => ({ showTelemetry: !s.showTelemetry })),
+  toggleMessageLog: () => set((s) => ({ showMessageLog: !s.showMessageLog })),
   toggleLegend: () => set((s) => ({ showLegend: !s.showLegend })),
   toggleMessageComposer: () => set((s) => ({ showMessageComposer: !s.showMessageComposer })),
   toggleWeatherControl: () => set((s) => ({ showWeatherControl: !s.showWeatherControl })),

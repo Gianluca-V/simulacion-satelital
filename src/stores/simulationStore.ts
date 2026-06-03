@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { Satellite, GroundStation, SimNode, WeatherState, Message } from '../types'
-import { DEFAULT_WEATHER, EARTH_RADIUS } from '../utils/constants'
+import { DEFAULT_WEATHER, EARTH_RADIUS, GS_TX_POWER, GS_TX_GAIN, GS_RX_GAIN, DEFAULT_BANDWIDTH, GS_DEFAULT_FREQUENCY } from '../utils/constants'
 import { latLngToPosition } from '../utils/math'
 import { createSatellite, propagateSatellite } from '../engine/orbit'
 import { createWeatherState } from '../engine/weather'
@@ -48,7 +48,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   addSatellite: (orbitType) => { const sat = createSatellite(orbitType); set((state) => ({ satellites: [...state.satellites, sat] })) },
   addGroundStation: (lat, lng) => {
     const pos = latLngToPosition(lat, lng, EARTH_RADIUS)
-    const gs: GroundStation = { id: `gs-${Date.now()}`, name: `GS-${Math.round(lat)}-${Math.round(lng)}`, type: 'groundStation', lat, lng, position: pos, txPower: 200, txGain: 40, rxGain: 40, frequency: 14, bandwidth: 10e6, selected: false }
+    const gs: GroundStation = { id: `gs-${Date.now()}`, name: `GS-${Math.round(lat)}-${Math.round(lng)}`, type: 'groundStation', lat, lng, position: pos, txPower: GS_TX_POWER, txGain: GS_TX_GAIN, rxGain: GS_RX_GAIN, frequency: GS_DEFAULT_FREQUENCY, bandwidth: DEFAULT_BANDWIDTH, selected: false }
     set((state) => ({ groundStations: [...state.groundStations, gs] }))
   },
   removeNode: (id) => set((state) => ({ satellites: state.satellites.filter(s => s.id !== id), groundStations: state.groundStations.filter(g => g.id !== id), selectedNodeId: state.selectedNodeId === id ? null : state.selectedNodeId, followNodeId: state.followNodeId === id ? null : state.followNodeId, transmissionSourceId: state.transmissionSourceId === id ? null : state.transmissionSourceId, transmissionDestId: state.transmissionDestId === id ? null : state.transmissionDestId })),

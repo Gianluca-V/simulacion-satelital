@@ -22,7 +22,7 @@ export function MessageComposer() {
     if (!source || !dest) return
     setSending(true); const msg = createMessage(source, dest, content); msg.status = 'transmitting'; addMessage(msg)
     let progress = 0
-    const interval = setInterval(() => { progress += 2; updateMessage(msg.id, { progress }); if (progress >= 100) { clearInterval(interval); const result = simulateTransmission(msg, source, dest, weather); updateMessage(result.message.id, { status: result.message.status, linkBudget: result.budget, progress: 100 }); setSending(false) } }, 100)
+    const interval = setInterval(() => { progress += 2; updateMessage(msg.id, { progress }); if (progress >= 100) { clearInterval(interval); const freshSource = getNodeById(sourceId); const freshDest = getNodeById(destId); if (freshSource && freshDest) { const result = simulateTransmission(msg, freshSource, freshDest, weather); updateMessage(result.message.id, { status: result.message.status, linkBudget: result.budget, progress: 100 }) }; setSending(false) } }, 100)
   }
 
   return (

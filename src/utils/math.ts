@@ -1,4 +1,4 @@
-import { EARTH_RADIUS, SPEED_OF_LIGHT } from './constants'
+import { EARTH_RADIUS, SPEED_OF_LIGHT, EARTH_GM, MS_TO_S } from './constants'
 import type { Position3D, OrbitalElements } from '../types'
 
 export function degToRad(deg: number): number { return deg * (Math.PI / 180) }
@@ -25,7 +25,7 @@ export function orbitalElementsToPosition(elements: OrbitalElements, time: numbe
   const inc = degToRad(inclination)
   const raanR = degToRad(raan)
   const argPerR = degToRad(argPerigee)
-  const ta = degToRad(trueAnomaly) + time * 0.001
+  const ta = degToRad(trueAnomaly) + time * MS_TO_S
   const rm = a * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(ta))
   const xOrb = rm * Math.cos(ta)
   const yOrb = rm * Math.sin(ta)
@@ -40,10 +40,9 @@ export function orbitalElementsToPosition(elements: OrbitalElements, time: numbe
 
 export function orbitalVelocity(elements: OrbitalElements): number {
   const a = elements.semiMajorAxis + EARTH_RADIUS
-  const gm = 3.986004418e5
-  return Math.sqrt(gm * (2 / a - 1 / a))
+  return Math.sqrt(EARTH_GM * (2 / a - 1 / a))
 }
 
-export function propagationDelay(distance: number): number { return (distance / SPEED_OF_LIGHT) * 1000 }
+export function propagationDelay(distance: number): number { return (distance * 1000 / SPEED_OF_LIGHT) * 1000 }
 export function generateId(): string { return Math.random().toString(36).substring(2, 9) }
 export function clamp(value: number, min: number, max: number): number { return Math.max(min, Math.min(max, value)) }

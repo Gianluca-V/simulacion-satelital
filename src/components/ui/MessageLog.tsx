@@ -1,6 +1,7 @@
 import { DraggablePanel } from './DraggablePanel'
 import { useUIStore } from '../../stores/uiStore'
 import { useSimulationStore } from '../../stores/simulationStore'
+import { MAX_LOG_MESSAGES } from '../../utils/constants'
 
 export function MessageLog() {
   const show = useUIStore((s) => s.showMessageLog)
@@ -15,7 +16,7 @@ export function MessageLog() {
       <div style={styles.panel}>
         <div style={styles.header}>📋 Historial ({messages.length})</div>
         {messages.length === 0 ? <div style={styles.empty}>Sin mensajes aún</div> : (
-          <div style={styles.list}>{[...messages].reverse().slice(0, 50).map((msg) => { const src = allNodes.find(n => n.id === msg.sourceId); const dst = allNodes.find(n => n.id === msg.destId); const ok = msg.status === 'completed'; const fail = msg.status === 'failed'; const tx = msg.status === 'transmitting'; const time = new Date(msg.timestamp).toLocaleTimeString(); return (<div key={msg.id} style={styles.item}><div style={styles.itemHeader}><span style={styles.time}>{time}</span><span style={{ color: ok ? '#0f8' : fail ? '#f44' : tx ? '#ff0' : '#888', fontSize: 10 }}>{ok ? '✅' : fail ? '❌' : tx ? '🔄' : '⏳'}</span></div><div style={styles.route}>{src?.name || '?'} → {dst?.name || '?'}</div><div style={styles.content}>{msg.content.length > 30 ? msg.content.slice(0, 30) + '…' : msg.content}</div>{msg.linkBudget && <div style={styles.meta}>{msg.linkBudget.propagationDelay.toFixed(1)}ms · {(msg.linkBudget.bitRate / 1e6).toFixed(1)}Mbps · Margen {msg.linkBudget.linkMargin.toFixed(1)}dB</div>}</div>) })}</div>
+          <div style={styles.list}>{[...messages].reverse().slice(0, MAX_LOG_MESSAGES).map((msg) => { const src = allNodes.find(n => n.id === msg.sourceId); const dst = allNodes.find(n => n.id === msg.destId); const ok = msg.status === 'completed'; const fail = msg.status === 'failed'; const tx = msg.status === 'transmitting'; const time = new Date(msg.timestamp).toLocaleTimeString(); return (<div key={msg.id} style={styles.item}><div style={styles.itemHeader}><span style={styles.time}>{time}</span><span style={{ color: ok ? '#0f8' : fail ? '#f44' : tx ? '#ff0' : '#888', fontSize: 10 }}>{ok ? '✅' : fail ? '❌' : tx ? '🔄' : '⏳'}</span></div><div style={styles.route}>{src?.name || '?'} → {dst?.name || '?'}</div><div style={styles.content}>{msg.content.length > 30 ? msg.content.slice(0, 30) + '…' : msg.content}</div>{msg.linkBudget && <div style={styles.meta}>{msg.linkBudget.propagationDelay.toFixed(1)}ms · {(msg.linkBudget.bitRate / 1e6).toFixed(1)}Mbps · Margen {msg.linkBudget.linkMargin.toFixed(1)}dB</div>}</div>) })}</div>
         )}
       </div>
     </DraggablePanel>
