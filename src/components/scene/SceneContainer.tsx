@@ -46,7 +46,7 @@ function SceneContent() {
   const toggleNodePanel = useUIStore((s) => s.toggleNodePanel)
   const getNodeById = useSimulationStore((s) => s.getNodeById)
 
-  const activeMessages = useMemo(() => messages.filter(m => m.status === 'transmitting' || m.status === 'completed'), [messages])
+  const visibleMessages = useMemo(() => messages.filter(m => m.linkBudget), [messages])
 
   useFrame((_, delta) => {
     useSimulationStore.getState().tick(delta * SIMULATION_SPEED)
@@ -93,10 +93,10 @@ function SceneContent() {
             <GroundStation station={gs} isSelected={gs.id === selectedNodeId} isSource={gs.id === transmissionSourceId} isDest={gs.id === transmissionDestId} />
           </group>
         ))}
-        {activeMessages.map((msg) => {
+        {visibleMessages.map((msg) => {
           const source = allNodes.find(n => n.id === msg.sourceId); const dest = allNodes.find(n => n.id === msg.destId)
           if (!source || !dest) return null
-          return <CommunicationLink key={msg.id} sourcePos={source.position} destPos={dest.position} progress={msg.progress / 100} active={msg.status === 'transmitting' || msg.status === 'completed'} linkQuality={msg.linkBudget?.linkMargin ?? 0} />
+          return <CommunicationLink key={msg.id} sourcePos={source.position} destPos={dest.position} progress={msg.progress / 100} status={msg.status} linkMargin={msg.linkBudget?.linkMargin ?? 0} />
         })}
       </group>
       <OrbitControls ref={controlsRef} enableDamping dampingFactor={0.12} rotateSpeed={0.3} zoomSpeed={0.25} minDistance={MIN_DIST_DEFAULT} maxDistance={MAX_DIST_DEFAULT} autoRotate={false} enablePan={false} target={[0, 0, 0]} />
