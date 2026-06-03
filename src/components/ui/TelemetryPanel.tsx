@@ -5,13 +5,14 @@ import { useSimulationStore } from '../../stores/simulationStore'
 export function TelemetryPanel() {
   const show = useUIStore((s) => s.showTelemetry)
   const messages = useSimulationStore((s) => s.messages)
+  const selectedMessageId = useUIStore((s) => s.selectedMessageId)
   if (!show) return null
-  const lastMsg = [...messages].reverse().find(m => m.linkBudget)
+  const msg = selectedMessageId ? messages.find(m => m.id === selectedMessageId) : [...messages].reverse().find(m => m.linkBudget)
   return (
     <DraggablePanel panelId="telemetry" defaultPosition={{ x: window.innerWidth - 252, y: 68 }} style={{ width: 240 }}>
       <div style={styles.panel}>
         <div style={styles.header}>📊 Telemetría</div>
-        {!lastMsg || !lastMsg.linkBudget ? <div style={styles.empty}>Esperando transmisión...</div> : <Content msg={lastMsg} />}
+        {!msg || !msg.linkBudget ? <div style={styles.empty}>Seleccioná un mensaje del historial</div> : <Content msg={msg} />}
       </div>
     </DraggablePanel>
   )

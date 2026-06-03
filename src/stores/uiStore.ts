@@ -10,6 +10,7 @@ interface UIState {
   showHelp: boolean
   activePanel: string | null
   panelPositions: Record<string, { x: number; y: number }>
+  selectedMessageId: string | null
 
   toggleNodePanel: () => void
   toggleTelemetry: () => void
@@ -20,6 +21,7 @@ interface UIState {
   toggleHelp: () => void
   setActivePanel: (panel: string | null) => void
   setPanelPosition: (id: string, pos: { x: number; y: number }) => void
+  setSelectedMessage: (id: string | null) => void
   closeAll: () => void
 }
 
@@ -33,6 +35,7 @@ export const useUIStore = create<UIState>((set) => ({
   showHelp: false,
   activePanel: null,
   panelPositions: {},
+  selectedMessageId: null,
 
   toggleNodePanel: () => set((s) => ({ showNodePanel: !s.showNodePanel })),
   toggleTelemetry: () => set((s) => ({ showTelemetry: !s.showTelemetry })),
@@ -43,5 +46,6 @@ export const useUIStore = create<UIState>((set) => ({
   toggleHelp: () => set((s) => ({ showHelp: !s.showHelp })),
   setActivePanel: (panel) => set({ activePanel: panel }),
   setPanelPosition: (id, pos) => set((s) => ({ panelPositions: { ...s.panelPositions, [id]: pos } })),
+  setSelectedMessage: (id) => set({ selectedMessageId: id }),
   closeAll: () => set({ showNodePanel: false, showTelemetry: false, showMessageLog: false, showMessageComposer: false }),
 }))
