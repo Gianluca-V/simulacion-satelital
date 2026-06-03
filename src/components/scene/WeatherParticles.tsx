@@ -6,6 +6,7 @@ import { EARTH_RADIUS } from '../../utils/constants'
 
 export function WeatherParticles() {
   const weather = useSimulationStore((s) => s.weather)
+  const isPaused = useSimulationStore((s) => s.isPaused)
   const ref = useRef<THREE.Points>(null)
   const isRain = ['LightRain', 'ModerateRain', 'HeavyRain', 'Storm'].includes(weather.condition)
   const isSnow = weather.condition === 'Snow'
@@ -26,7 +27,7 @@ export function WeatherParticles() {
 
   useFrame((_, delta) => {
     if (!ref.current || count === 0) return
-    if (useSimulationStore.getState().isPaused) return
+    if (isPaused) return
     const pos = ref.current.geometry.attributes.position.array as Float32Array
     for (let i = 0; i < count; i++) {
       pos[i * 3 + 1] += velocities[i * 3 + 1] * delta * 0.5

@@ -5,6 +5,7 @@ import { useSimulationStore } from '../../stores/simulationStore'
 
 export function Starfield() {
   const ref = useRef<THREE.Points>(null)
+  const isPaused = useSimulationStore((s) => s.isPaused)
   const [positions, colors] = useMemo(() => {
     const count = 8000; const pos = new Float32Array(count * 3); const col = new Float32Array(count * 3)
     for (let i = 0; i < count; i++) {
@@ -21,7 +22,7 @@ export function Starfield() {
   }, [])
 
   useFrame((_, delta) => {
-    if (useSimulationStore.getState().isPaused) return
+    if (isPaused) return
     if (ref.current) ref.current.rotation.y += delta * 0.001
   })
 

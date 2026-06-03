@@ -20,6 +20,18 @@ const MAX_DIST_DEFAULT = S(EARTH_RADIUS * 15)
 const MIN_DIST_FOLLOW = 2
 const MAX_DIST_FOLLOW = S(EARTH_RADIUS * 8)
 
+function TickController() {
+  const tick = useSimulationStore((s) => s.tick)
+  const speed = useSimulationStore((s) => s.speed)
+  const isPaused = useSimulationStore((s) => s.isPaused)
+
+  useFrame((_, delta) => {
+    if (!isPaused) tick(delta * speed)
+  })
+
+  return null
+}
+
 function SceneContent() {
   const controlsRef = useRef<any>(null)
   const { camera } = useThree()
@@ -49,7 +61,6 @@ function SceneContent() {
   const visibleMessages = useMemo(() => messages.filter(m => m.linkBudget), [messages])
 
   useFrame((_, delta) => {
-    useSimulationStore.getState().tick(delta * useSimulationStore.getState().speed)
     const controls = controlsRef.current
     if (!controls) return
     controls.zoomSpeed = shiftRef.current ? 1.5 : 0.25
@@ -80,6 +91,7 @@ function SceneContent() {
       <directionalLight position={[S(-100), S(-50), S(-100)]} intensity={0.4} />
       <Starfield />
       <group scale={1 / SCENE_SCALE}>
+        <TickController />
         <Earth onDoubleClick={handleDoubleClickEarth} />
         <Atmosphere />
         <WeatherParticles />

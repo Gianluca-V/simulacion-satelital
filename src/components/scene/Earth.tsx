@@ -41,6 +41,7 @@ interface EarthProps { onDoubleClick?: () => void }
 export function Earth({ onDoubleClick }: EarthProps) {
   const meshRef = useRef<THREE.Mesh>(null); const cloudsRef = useRef<THREE.Mesh>(null)
   const weather = useSimulationStore((s) => s.weather)
+  const isPaused = useSimulationStore((s) => s.isPaused)
   const [dayTex, setDayTex] = useState<THREE.Texture>(fallbackDayTex)
   const [cloudsTex, setCloudsTex] = useState<THREE.Texture | null>(null)
   const [bumpTex] = useState<THREE.Texture>(fallbackBumpTex)
@@ -56,7 +57,7 @@ export function Earth({ onDoubleClick }: EarthProps) {
   }, [])
 
   useFrame((_, delta) => {
-    if (useSimulationStore.getState().isPaused) return
+    if (isPaused) return
     if (meshRef.current) meshRef.current.rotation.y += delta * 0.01
     if (cloudsRef.current) cloudsRef.current.rotation.y += delta * 0.015
   })
