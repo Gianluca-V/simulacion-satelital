@@ -1,0 +1,9 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body, #root { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
+.app-container { width: 100%; height: 100%; position: relative; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(100, 160, 255, 0.3); border-radius: 2px; }
+button:hover { filter: brightness(1.2); }
+select:hover, select:focus { border-color: rgba(100, 180, 255, 0.4) !important; outline: none; }
+textarea:focus { border-color: rgba(100, 180, 255, 0.4) !important; outline: none; }
