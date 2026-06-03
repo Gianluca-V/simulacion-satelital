@@ -5,6 +5,8 @@ import { latLngToPosition } from '../utils/math'
 import { createSatellite, propagateSatellite } from '../engine/orbit'
 import { createWeatherState } from '../engine/weather'
 
+export const SPEED_PRESETS = [1, 10, 50, 100, 500] as const
+
 interface SimulationState {
   satellites: Satellite[]
   groundStations: GroundStation[]
@@ -12,6 +14,7 @@ interface SimulationState {
   weather: WeatherState
   time: number
   isPaused: boolean
+  speed: number
   selectedNodeId: string | null
   followNodeId: string | null
   transmissionSourceId: string | null
@@ -30,6 +33,7 @@ interface SimulationState {
   setTransmissionDest: (id: string | null) => void
   tick: (deltaMs: number) => void
   setPaused: (paused: boolean) => void
+  setSpeed: (speed: number) => void
   getNodeById: (id: string) => SimNode | undefined
 }
 
@@ -40,6 +44,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   weather: DEFAULT_WEATHER,
   time: 0,
   isPaused: false,
+  speed: 500,
   selectedNodeId: null,
   followNodeId: null,
   transmissionSourceId: null,
@@ -62,5 +67,6 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   setTransmissionDest: (id) => set({ transmissionDestId: id }),
   tick: (deltaMs) => { const state = get(); if (state.isPaused) return; set({ satellites: state.satellites.map(sat => ({ ...sat, position: propagateSatellite(sat, deltaMs) })), time: state.time + deltaMs }) },
   setPaused: (paused) => set({ isPaused: paused }),
+  setSpeed: (speed) => set({ speed }),
   getNodeById: (id) => get().satellites.find(s => s.id === id) || get().groundStations.find(g => g.id === id),
 }))

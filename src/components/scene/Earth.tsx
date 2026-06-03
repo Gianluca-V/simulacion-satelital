@@ -56,6 +56,7 @@ export function Earth({ onDoubleClick }: EarthProps) {
   }, [])
 
   useFrame((_, delta) => {
+    if (useSimulationStore.getState().isPaused) return
     if (meshRef.current) meshRef.current.rotation.y += delta * 0.01
     if (cloudsRef.current) cloudsRef.current.rotation.y += delta * 0.015
   })

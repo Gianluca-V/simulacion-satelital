@@ -26,6 +26,7 @@ export function WeatherParticles() {
 
   useFrame((_, delta) => {
     if (!ref.current || count === 0) return
+    if (useSimulationStore.getState().isPaused) return
     const pos = ref.current.geometry.attributes.position.array as Float32Array
     for (let i = 0; i < count; i++) {
       pos[i * 3 + 1] += velocities[i * 3 + 1] * delta * 0.5

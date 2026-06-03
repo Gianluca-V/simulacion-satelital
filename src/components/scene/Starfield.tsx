@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { useSimulationStore } from '../../stores/simulationStore'
 
 export function Starfield() {
   const ref = useRef<THREE.Points>(null)
@@ -19,7 +20,10 @@ export function Starfield() {
     return [pos, col]
   }, [])
 
-  useFrame((_, delta) => { if (ref.current) ref.current.rotation.y += delta * 0.001 })
+  useFrame((_, delta) => {
+    if (useSimulationStore.getState().isPaused) return
+    if (ref.current) ref.current.rotation.y += delta * 0.001
+  })
 
   return (
     <points ref={ref}>

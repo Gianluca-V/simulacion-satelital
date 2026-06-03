@@ -11,7 +11,7 @@ import { CommunicationLink } from './CommunicationLink'
 import { WeatherParticles } from './WeatherParticles'
 import { useSimulationStore } from '../../stores/simulationStore'
 import { useUIStore } from '../../stores/uiStore'
-import { EARTH_RADIUS, SCENE_SCALE, SIMULATION_SPEED } from '../../utils/constants'
+import { EARTH_RADIUS, SCENE_SCALE } from '../../utils/constants'
 
 const S = (v: number) => v / SCENE_SCALE
 const DEFAULT_CAM_POS = new THREE.Vector3(S(EARTH_RADIUS * 2.5), S(EARTH_RADIUS * 1.2), S(EARTH_RADIUS * 2.5))
@@ -49,7 +49,7 @@ function SceneContent() {
   const visibleMessages = useMemo(() => messages.filter(m => m.linkBudget), [messages])
 
   useFrame((_, delta) => {
-    useSimulationStore.getState().tick(delta * SIMULATION_SPEED)
+    useSimulationStore.getState().tick(delta * useSimulationStore.getState().speed)
     const controls = controlsRef.current
     if (!controls) return
     controls.zoomSpeed = shiftRef.current ? 1.5 : 0.25
