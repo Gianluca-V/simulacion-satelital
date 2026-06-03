@@ -5,15 +5,13 @@ import { atmosphericGasAttenuation, rainAttenuation, cloudAttenuation } from './
 
 function wattsToDBm(watts: number): number { return 10 * Math.log10(watts) + 30 }
 
-export function calculateLinkBudget(txPower: number, txGain: number, rxGain: number, freqGHz: number, distanceKm: number, weather: WeatherState, isGroundLink: boolean, elevationDeg?: number): LinkBudget {
+export function calculateLinkBudget(txPower: number, txGain: number, rxGain: number, freqGHz: number, distanceKm: number, weather: WeatherState, elevationDeg?: number): LinkBudget {
   const freqHz = freqGHz * 1e9
   const fspl = 20 * Math.log10(distanceKm * 1000) + 20 * Math.log10(freqHz) + 20 * Math.log10(4 * Math.PI / SPEED_OF_LIGHT)
-  let gasAtt = 0, rainAtt = 0, cloudAtt = 0
-  if (isGroundLink) {
-    gasAtt = atmosphericGasAttenuation(freqGHz, weather.humidity, weather.temperature)
-    rainAtt = rainAttenuation(freqGHz, weather.rainRate, elevationDeg ?? 0)
-    cloudAtt = cloudAttenuation(freqGHz, weather.cloudLiquidWater)
-  }
+  const elev = elevationDeg ?? 5
+  const gasAtt = atmosphericGasAttenuation(freqGHz, weather.humidity, weather.temperature)
+  const rainAtt = rainAttenuation(freqGHz, weather.rainRate, elev)
+  const cloudAtt = cloudAttenuation(freqGHz, weather.cloudLiquidWater)
   const totalAtt = fspl + gasAtt + rainAtt + cloudAtt
   const txPowerDBm = wattsToDBm(txPower)
   const receivedPower = txPowerDBm + txGain + rxGain - totalAtt
