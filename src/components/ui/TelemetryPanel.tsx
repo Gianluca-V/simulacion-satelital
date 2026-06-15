@@ -25,6 +25,28 @@ function Content({ msg }: { msg: any }) {
     <div style={styles.footer}>Basado en ITU-R P.676 · P.838 · P.840</div></>)
 }
 
-function Row({ label, value, color, highlight }: { label: string; value: string; color?: string; highlight?: boolean }) { return (<div style={styles.row}><span style={styles.label}>{label}</span><span style={{ ...styles.value, color: color || (highlight ? '#eef' : '#bbb'), fontWeight: highlight ? 600 : 400 }}>{value}</span></div>) }
+const TOOLTIPS: Record<string, string> = {
+  Distancia: 'Distancia geométrica entre nodo fuente y destino',
+  Frecuencia: 'Frecuencia de la portadora usada en la transmisión',
+  FSPL: 'Free Space Path Loss — atenuación por propagación en espacio libre que aumenta con la distancia y la frecuencia',
+  'Aten. gases': 'Atenuación atmosférica por absorción de oxígeno y vapor de agua (ITU-R P.676)',
+  'Aten. lluvia': 'Atenuación por lluvia — depende de la intensidad de precipitación y la frecuencia (ITU-R P.838)',
+  'Aten. nubes': 'Atenuación por nubes y niebla — depende del contenido de agua líquida (ITU-R P.840)',
+  'Aten. total': 'Suma de todas las atenuaciones (FSPL + gases + lluvia + nubes)',
+  'Pot. recibida': 'Potencia que llega al receptor en dBm, calculada desde el enlace: Pt + Gt + Gr − Atenuaciones',
+  'C/N₀': 'Relación portadora a densidad de ruido — calidad de la señal antes de la demodulación',
+  SNR: 'Signal-to-Noise Ratio — relación señal a ruido en el ancho de banda de la señal',
+  'Eb/N₀': 'Energía por bit sobre densidad de ruido — métrica clave de eficiencia espectral',
+  Margen: 'Diferencia entre Eb/N₀ y el umbral mínimo (MIN_EB_NO). Positivo = enlace viable',
+  Latencia: 'Tiempo que tarda la señal en viajar del transmisor al receptor a la velocidad de la luz',
+  Doppler: 'Desplazamiento en frecuencia por efecto Doppler debido al movimiento relativo entre nodos',
+  Throughput: 'Tasa de bits máxima que el canal puede soportar dadas las condiciones del enlace',
+  'Temp. ruido': 'Temperatura equivalente de ruido del sistema receptor (antena + LNA)',
+}
+
+function Row({ label, value, color, highlight }: { label: string; value: string; color?: string; highlight?: boolean }) {
+  const tip = TOOLTIPS[label]
+  return (<div style={styles.row} title={tip}><span style={styles.label}>{label}</span><span style={{ ...styles.value, color: color || (highlight ? '#eef' : '#bbb'), fontWeight: highlight ? 600 : 400 }}>{value}</span></div>)
+}
 
 const styles: Record<string, React.CSSProperties> = { panel: { maxHeight: 'calc(100vh - 80px)', overflowY: 'auto', background: 'rgba(8, 14, 28, 0.92)', borderRadius: 10, backdropFilter: 'blur(14px)', border: '1px solid rgba(80, 140, 240, 0.15)', padding: '10px 12px' }, header: { fontSize: 12, fontWeight: 700, color: '#8ab', marginBottom: 8, letterSpacing: '0.3px' }, empty: { fontSize: 11, color: '#556' }, status: { fontSize: 10, color: '#555', marginBottom: 6 }, grid: { display: 'flex', flexDirection: 'column', gap: 2 }, row: { display: 'flex', justifyContent: 'space-between', fontSize: 10, padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }, label: { color: '#778' }, value: { fontFamily: 'monospace' }, footer: { fontSize: 8, color: '#445', marginTop: 8, textAlign: 'center', letterSpacing: '0.2px' } }
