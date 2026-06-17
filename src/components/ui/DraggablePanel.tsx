@@ -8,10 +8,18 @@ export function DraggablePanel({ panelId, defaultPosition, children, style }: Pr
   const setPanelPosition = useUIStore((s) => s.setPanelPosition)
   const initialPos = storedPos || defaultPosition
   const [pos, setPos] = useState(initialPos)
+  const panelRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef({ isDragging: false, offsetX: 0, offsetY: 0 })
   const posRef = useRef(pos); posRef.current = pos
 
   useEffect(() => { if (storedPos) setPos(storedPos) }, [panelId, storedPos])
+
+  useEffect(() => {
+    if (!panelRef.current) return
+    const h = panelRef.current.offsetHeight
+    const maxY = window.innerHeight - h - 16
+    if (pos.y > maxY) setPos((p) => ({ ...p, y: Math.max(10, maxY) }))
+  }, [])
 
   const handleGrabMouseDown = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
@@ -25,7 +33,7 @@ export function DraggablePanel({ panelId, defaultPosition, children, style }: Pr
   useEffect(() => { window.addEventListener('mousemove', handleMouseMove); window.addEventListener('mouseup', handleMouseUp); return () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp) } }, [handleMouseMove, handleMouseUp])
 
   return (
-    <div style={{ position: 'absolute', left: pos.x, top: pos.y, zIndex: 850, ...style }}>
+    <div ref={panelRef} style={{ position: 'absolute', left: pos.x, top: pos.y, zIndex: 850, ...style }}>
       {children}
       <div onMouseDown={handleGrabMouseDown} style={{ position: 'absolute', right: 0, bottom: 0, width: 18, height: 18, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', cursor: 'grab', padding: 2, borderBottomRightRadius: 10, userSelect: 'none' }}>
         <svg width="10" height="10" viewBox="0 0 10 10" style={{ display: 'block' }}>
