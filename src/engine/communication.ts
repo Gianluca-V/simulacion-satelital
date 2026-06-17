@@ -19,6 +19,12 @@ export function simulateTransmission(msg: Message, source: SimNode, dest: SimNod
   }
   const blocked = !(source.type === 'groundStation' || dest.type === 'groundStation') && isLineOfSightBlocked(source.position, dest.position)
   const budget = calculateLinkBudget(source.txPower, source.txGain, dest.rxGain, freqGHz, dist, weather, elevation)
-  const success = budget.linkMargin > 0 && !blocked
-  return { message: { ...msg, status: success ? 'completed' : 'failed', linkBudget: budget }, budget }
+  const marginOk = budget.linkMargin > 0
+  const success = marginOk && !blocked
+  let failureReason: string | undefined
+  if (!success) {
+    if (blocked) failureReason = 'Sin línea de visión: la Tierra bloquea el enlace entre los satélites'
+    else if (!marginOk) failureReason = `Margen de enlace insuficiente (${budget.linkMargin.toFixed(1)} dB): la atenuación total supera la potencia disponible`
+  }
+  return { message: { ...msg, status: success ? 'completed' : 'failed', linkBudget: budget, failureReason }, budget }
 }

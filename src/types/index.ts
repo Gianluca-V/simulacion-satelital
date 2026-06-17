@@ -95,6 +95,7 @@ export interface Message {
   status: 'pending' | 'transmitting' | 'completed' | 'failed'
   linkBudget: LinkBudget | null
   progress: number
+  failureReason?: string
 }
 
 export interface FrequencyBandInfo {
