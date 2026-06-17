@@ -65,7 +65,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   updateMessage: (id, updates) => set((state) => ({ messages: state.messages.map(m => m.id === id ? { ...m, ...updates } : m) })),
   setTransmissionSource: (id) => set({ transmissionSourceId: id }),
   setTransmissionDest: (id) => set({ transmissionDestId: id }),
-  tick: (deltaMs) => { const state = get(); if (state.isPaused) return; set({ satellites: state.satellites.map(sat => ({ ...sat, position: propagateSatellite(sat, deltaMs) })), time: state.time + deltaMs }) },
+  tick: (deltaMs) => { const state = get(); if (state.isPaused) return; set({ satellites: state.satellites.map(sat => { const { position, trueAnomaly } = propagateSatellite(sat, deltaMs); return { ...sat, position, orbitalElements: { ...sat.orbitalElements, trueAnomaly } } }), time: state.time + deltaMs }) },
   setPaused: (paused) => set({ isPaused: paused }),
   setSpeed: (speed) => set({ speed }),
   getNodeById: (id) => get().satellites.find(s => s.id === id) || get().groundStations.find(g => g.id === id),

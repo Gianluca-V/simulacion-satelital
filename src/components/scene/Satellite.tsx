@@ -24,7 +24,7 @@ export function Satellite({ satellite, isSelected, isSource, isDest, isFollowed 
     const pts: number[] = []; const steps = 256; const seed = satellite.orbitalElements
     for (let i = 0; i <= steps; i++) { const ta = (i / steps) * 360; const p = orbitalElementsToPosition({ ...seed, trueAnomaly: ta }, 0); pts.push(p.x, p.y, p.z) }
     return new Float32Array(pts)
-  }, [satellite.orbitalElements])
+  }, [satellite.orbitalElements.semiMajorAxis, satellite.orbitalElements.eccentricity, satellite.orbitalElements.inclination, satellite.orbitalElements.raan, satellite.orbitalElements.argPerigee])
 
   const color = isSource ? '#00ff88' : isDest ? '#ff8800' : isSelected ? '#ffff00' : isFollowed ? '#ffaa00' : '#44aaff'
   const spriteTex = useMemo(() => makeSpriteTexture(color), [isSource, isDest, isSelected, isFollowed])

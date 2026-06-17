@@ -14,13 +14,18 @@ export function getDefaultInclination(orbitType: OrbitType): number {
   switch (orbitType) { case 'LEO': return DEFAULT_INCL_LEO; case 'MEO': return DEFAULT_INCL_MEO; case 'GEO': return DEFAULT_INCL_GEO }
 }
 
-export function propagateSatellite(sat: Satellite, elapsedMs: number): Position3D {
-  const els = sat.orbitalElements
-  const orbitalPeriod = 2 * Math.PI * Math.sqrt(Math.pow((els.semiMajorAxis + EARTH_RADIUS) * 1000, 3) / (GRAVITATIONAL_CONST * EARTH_MASS))
+export function computeOrbitalDelta(altitudeKm: number, elapsedSec: number): number {
+  const a = altitudeKm + EARTH_RADIUS
+  const orbitalPeriod = 2 * Math.PI * Math.sqrt(Math.pow(a * 1000, 3) / (GRAVITATIONAL_CONST * EARTH_MASS))
   const meanMotion = (2 * Math.PI) / orbitalPeriod
-  const deltaTrueAnomaly = degToRad(meanMotion * elapsedMs)
-  const propagated: OrbitalElements = { ...els, trueAnomaly: els.trueAnomaly + deltaTrueAnomaly * (180 / Math.PI) }
-  return orbitalElementsToPosition(propagated, 0)
+  return (meanMotion * elapsedSec) * (180 / Math.PI)
+}
+
+export function propagateSatellite(sat: Satellite, elapsedMs: number): { position: Position3D; trueAnomaly: number } {
+  const deltaDeg = computeOrbitalDelta(sat.orbitalElements.semiMajorAxis, elapsedMs)
+  const newTA = sat.orbitalElements.trueAnomaly + deltaDeg
+  const propagated: OrbitalElements = { ...sat.orbitalElements, trueAnomaly: newTA }
+  return { position: orbitalElementsToPosition(propagated, 0), trueAnomaly: newTA }
 }
 
 export function createSatellite(orbitType: OrbitType, altitudeKm?: number, inclinationDeg?: number, raanDeg?: number): Satellite {
