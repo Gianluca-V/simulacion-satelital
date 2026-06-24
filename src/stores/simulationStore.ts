@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type { Satellite, GroundStation, SimNode, WeatherState, Message, OrbitType } from '../types'
 import type { SatellitePreset } from '../utils/constants'
-import { DEFAULT_WEATHER, EARTH_RADIUS, GS_TX_POWER, GS_TX_GAIN, GS_RX_GAIN, DEFAULT_BANDWIDTH, GS_DEFAULT_FREQUENCY } from '../utils/constants'
+import { DEFAULT_WEATHER, EARTH_RADIUS, GS_TX_POWER, GS_TX_GAIN, GS_RX_GAIN, DEFAULT_BANDWIDTH, GS_DEFAULT_FREQUENCY, EARTH_ROTATION_RATE } from '../utils/constants'
 import { latLngToPosition } from '../utils/math'
 import { createSatellite, propagateSatellite } from '../engine/orbit'
 import { createWeatherState } from '../engine/weather'
@@ -14,6 +14,7 @@ interface SimulationState {
   messages: Message[]
   weather: WeatherState
   time: number
+  earthRotation: number
   isPaused: boolean
   speed: number
   selectedNodeId: string | null
@@ -44,6 +45,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   messages: [],
   weather: DEFAULT_WEATHER,
   time: 0,
+  earthRotation: 0,
   isPaused: false,
   speed: 500,
   selectedNodeId: null,
@@ -66,7 +68,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   updateMessage: (id, updates) => set((state) => ({ messages: state.messages.map(m => m.id === id ? { ...m, ...updates } : m) })),
   setTransmissionSource: (id) => set({ transmissionSourceId: id }),
   setTransmissionDest: (id) => set({ transmissionDestId: id }),
-  tick: (deltaMs) => { const state = get(); if (state.isPaused) return; set({ satellites: state.satellites.map(sat => { const { position, trueAnomaly } = propagateSatellite(sat, deltaMs); return { ...sat, position, orbitalElements: { ...sat.orbitalElements, trueAnomaly } } }), time: state.time + deltaMs }) },
+  tick: (deltaMs) => { const state = get(); if (state.isPaused) return; const earthAngle = deltaMs * EARTH_ROTATION_RATE; set({ satellites: state.satellites.map(sat => { const { position, trueAnomaly } = propagateSatellite(sat, deltaMs); return { ...sat, position, orbitalElements: { ...sat.orbitalElements, trueAnomaly } } }), time: state.time + deltaMs, earthRotation: state.earthRotation + earthAngle }) },
   setPaused: (paused) => set({ isPaused: paused }),
   setSpeed: (speed) => set({ speed }),
   getNodeById: (id) => get().satellites.find(s => s.id === id) || get().groundStations.find(g => g.id === id),

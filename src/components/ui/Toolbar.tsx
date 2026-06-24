@@ -20,7 +20,7 @@ export function Toolbar() {
   const setSpeed = useSimulationStore((s) => s.setSpeed)
   const [showSatMenu, setShowSatMenu] = useState<OrbitType | null>(null)
   const [showGS, setShowGS] = useState(false)
-  const { toggleNodePanel, toggleTelemetry, toggleMessageLog, toggleMessageComposer, toggleWeatherControl, showNodePanel, showTelemetry, showMessageLog, showMessageComposer, showWeatherControl } = useUIStore()
+  const { toggleNodePanel, toggleTelemetry, toggleMessageLog, toggleMessageComposer, toggleWeatherControl, toggleEarthLockedView, showNodePanel, showTelemetry, showMessageLog, showMessageComposer, showWeatherControl, earthLockedView } = useUIStore()
   const toggleHelp = useUIStore((s) => s.toggleHelp)
 
   const handleSatMenu = (type: OrbitType) => { setShowSatMenu(showSatMenu === type ? null : type); setShowGS(false) }
@@ -52,6 +52,7 @@ export function Toolbar() {
         {showGS && <div style={styles.gsMenu}>{GS_PRESETS.map((gs) => (<button key={gs.name} onClick={() => { addGroundStation(gs.lat, gs.lng); setShowGS(false) }} style={styles.gsBtn}>{gs.name}</button>))}</div>}
         <Divider />
         <ToolBtn label={isPaused ? '▶' : '⏸'} onClick={() => setPaused(!isPaused)} color="#ffaa00" active={isPaused} />
+        <ToolBtn label="🌍" onClick={toggleEarthLockedView} active={earthLockedView} color="#44ddff" />
         <div style={styles.speedGroup}>{SPEED_PRESETS.map((s) => (<button key={s} onClick={() => setSpeed(s)} style={{ ...styles.speedBtn, background: speed === s ? 'rgba(255,170,0,0.2)' : 'transparent', borderColor: speed === s ? 'rgba(255,170,0,0.5)' : 'rgba(255,255,255,0.08)', color: speed === s ? '#ffaa00' : '#889' }}>{s}×</button>))}</div>
         <Divider />
         <ToolBtn label="📨" onClick={toggleMessageComposer} active={showMessageComposer} color="#00ff88" />

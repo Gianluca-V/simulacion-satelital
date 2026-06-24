@@ -20,6 +20,7 @@ export function HelpInstructions() {
           <Section title="🖱 Navegar la escena 3D">
             <p><b>Arrastrar</b> con el mouse para rotar la vista.</p>
             <p><b>Rueda</b> para acercar/alejar. <b>Shift + rueda</b> para zoom 6× más rápido.</p>
+            <p><b>🌍 Bloquear vista a Tierra</b> — la cámara gira solidaria con la Tierra. Los satélites orbitan alrededor de una Tierra fija, como se vería desde la superficie terrestre.</p>
             <p><b>Doble clic</b> en un satélite → la cámara lo sigue automáticamente.</p>
             <p><b>Doble clic</b> en la Tierra → vuelve a la vista general.</p>
           </Section>

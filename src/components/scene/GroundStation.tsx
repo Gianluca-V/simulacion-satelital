@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { GroundStation as GroundStationType } from '../../types'
@@ -11,13 +11,18 @@ export function GroundStation({ station, isSelected, isSource, isDest }: Props) 
   const color = isSource ? '#00ff88' : isDest ? '#ff8800' : isSelected ? '#ffff00' : '#ff4466'
   const SIZE = 80
 
+  const outwardQuat = useMemo(() => {
+    const normal = new THREE.Vector3(pos.x, pos.y, pos.z).normalize()
+    return new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal)
+  }, [pos.x, pos.y, pos.z])
+
   useFrame(() => {
     if (glowRef.current) glowRef.current.rotation.y += 0.02
     if (beamRef.current) beamRef.current.rotation.y += 0.03
   })
 
   return (
-    <group position={[pos.x, pos.y, pos.z]}>
+    <group position={[pos.x, pos.y, pos.z]} quaternion={outwardQuat}>
       <sprite position={[0, 0, 0]} scale={[SIZE * 4, SIZE * 4, 1]}>
         <spriteMaterial color={color} transparent opacity={0.6} depthWrite={false} />
       </sprite>

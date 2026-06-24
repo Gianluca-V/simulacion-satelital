@@ -10,7 +10,7 @@ export function latLngToPosition(lat: number, lng: number, radius: number = EART
   return {
     x: radius * Math.cos(latRad) * Math.cos(lngRad),
     y: radius * Math.sin(latRad),
-    z: radius * Math.cos(latRad) * Math.sin(lngRad),
+    z: -radius * Math.cos(latRad) * Math.sin(lngRad),
   }
 }
 
@@ -32,10 +32,10 @@ export function orbitalElementsToPosition(elements: OrbitalElements, time: numbe
   const cosRaan = Math.cos(raanR); const sinRaan = Math.sin(raanR)
   const cosInc = Math.cos(inc); const sinInc = Math.sin(inc)
   const cosArg = Math.cos(argPerR); const sinArg = Math.sin(argPerR)
-  const x = (cosRaan * cosArg - sinRaan * sinArg * cosInc) * xOrb + (-cosRaan * sinArg - sinRaan * cosArg * cosInc) * yOrb
-  const y = (sinRaan * cosArg + cosRaan * sinArg * cosInc) * xOrb + (-sinRaan * sinArg + cosRaan * cosArg * cosInc) * yOrb
-  const z = sinInc * sinArg * xOrb + sinInc * cosArg * yOrb
-  return { x, y, z }
+  const ex = (cosRaan * cosArg - sinRaan * sinArg * cosInc) * xOrb + (-cosRaan * sinArg - sinRaan * cosArg * cosInc) * yOrb
+  const ey = (sinRaan * cosArg + cosRaan * sinArg * cosInc) * xOrb + (-sinRaan * sinArg + cosRaan * cosArg * cosInc) * yOrb
+  const ez = sinInc * sinArg * xOrb + sinInc * cosArg * yOrb
+  return { x: ex, y: ez, z: -ey }
 }
 
 export function orbitalVelocity(elements: OrbitalElements): number {

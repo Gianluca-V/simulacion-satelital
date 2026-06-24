@@ -8,6 +8,7 @@ interface UIState {
   showMessageComposer: boolean
   showWeatherControl: boolean
   showHelp: boolean
+  earthLockedView: boolean
   activePanel: string | null
   panelPositions: Record<string, { x: number; y: number }>
   selectedMessageId: string | null
@@ -19,6 +20,7 @@ interface UIState {
   toggleMessageComposer: () => void
   toggleWeatherControl: () => void
   toggleHelp: () => void
+  toggleEarthLockedView: () => void
   setActivePanel: (panel: string | null) => void
   setPanelPosition: (id: string, pos: { x: number; y: number }) => void
   setSelectedMessage: (id: string | null) => void
@@ -33,6 +35,7 @@ export const useUIStore = create<UIState>((set) => ({
   showMessageComposer: false,
   showWeatherControl: true,
   showHelp: false,
+  earthLockedView: false,
   activePanel: null,
   panelPositions: {},
   selectedMessageId: null,
@@ -44,6 +47,7 @@ export const useUIStore = create<UIState>((set) => ({
   toggleMessageComposer: () => set((s) => ({ showMessageComposer: !s.showMessageComposer })),
   toggleWeatherControl: () => set((s) => ({ showWeatherControl: !s.showWeatherControl })),
   toggleHelp: () => set((s) => ({ showHelp: !s.showHelp })),
+  toggleEarthLockedView: () => set((s) => ({ earthLockedView: !s.earthLockedView })),
   setActivePanel: (panel) => set({ activePanel: panel }),
   setPanelPosition: (id, pos) => set((s) => ({ panelPositions: { ...s.panelPositions, [id]: pos } })),
   setSelectedMessage: (id) => set({ selectedMessageId: id }),

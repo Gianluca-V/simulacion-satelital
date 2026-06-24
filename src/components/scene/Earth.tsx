@@ -1,5 +1,4 @@
-import { useRef, useMemo, useState, useEffect } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useMemo, useState, useEffect } from 'react'
 import * as THREE from 'three'
 import { EARTH_RADIUS } from '../../utils/constants'
 import { useSimulationStore } from '../../stores/simulationStore'
@@ -39,9 +38,7 @@ const fallbackBumpTex = generateBumpTexture()
 interface EarthProps { onDoubleClick?: () => void }
 
 export function Earth({ onDoubleClick }: EarthProps) {
-  const meshRef = useRef<THREE.Mesh>(null); const cloudsRef = useRef<THREE.Mesh>(null)
   const weather = useSimulationStore((s) => s.weather)
-  const isPaused = useSimulationStore((s) => s.isPaused)
   const [dayTex, setDayTex] = useState<THREE.Texture>(fallbackDayTex)
   const [cloudsTex, setCloudsTex] = useState<THREE.Texture | null>(null)
   const [bumpTex] = useState<THREE.Texture>(fallbackBumpTex)
@@ -56,12 +53,6 @@ export function Earth({ onDoubleClick }: EarthProps) {
     return () => { active = false }
   }, [])
 
-  useFrame((_, delta) => {
-    if (isPaused) return
-    if (meshRef.current) meshRef.current.rotation.y += delta * 0.01
-    if (cloudsRef.current) cloudsRef.current.rotation.y += delta * 0.015
-  })
-
   const weatherTint = useMemo(() => {
     const tints: Record<string, [number, number, number]> = { Clear: [1, 1, 1], LightRain: [0.85, 0.88, 0.92], ModerateRain: [0.7, 0.75, 0.82], HeavyRain: [0.55, 0.6, 0.7], Storm: [0.4, 0.45, 0.55], Fog: [0.75, 0.78, 0.82], Snow: [0.9, 0.92, 0.95] }
     return tints[weather.condition] || tints.Clear
@@ -69,12 +60,12 @@ export function Earth({ onDoubleClick }: EarthProps) {
 
   return (
     <group onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick?.() }}>
-      <mesh ref={meshRef}>
+      <mesh>
         <sphereGeometry args={[EARTH_RADIUS, 80, 80]} />
         <meshPhongMaterial map={dayTex} bumpMap={bumpTex} bumpScale={0.04} specular={new THREE.Color(0x222244)} shininess={8} color={weatherTint} transparent={weather.condition !== 'Clear'} opacity={weather.condition === 'Storm' ? 0.75 : 1} />
       </mesh>
       {cloudsTex && (
-        <mesh ref={cloudsRef}>
+        <mesh>
           <sphereGeometry args={[EARTH_RADIUS * 1.004, 64, 64]} />
           <meshPhongMaterial map={cloudsTex} transparent opacity={0.2} depthWrite={false} />
         </mesh>

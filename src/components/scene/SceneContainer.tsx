@@ -12,6 +12,7 @@ import { WeatherParticles } from './WeatherParticles'
 import { useSimulationStore } from '../../stores/simulationStore'
 import { useUIStore } from '../../stores/uiStore'
 import { EARTH_RADIUS, SCENE_SCALE } from '../../utils/constants'
+import type { Position3D } from '../../types'
 
 const S = (v: number) => v / SCENE_SCALE
 const DEFAULT_CAM_POS = new THREE.Vector3(S(EARTH_RADIUS * 2.5), S(EARTH_RADIUS * 1.2), S(EARTH_RADIUS * 2.5))
@@ -19,6 +20,18 @@ const MIN_DIST_DEFAULT = S(EARTH_RADIUS * 1.2)
 const MAX_DIST_DEFAULT = S(EARTH_RADIUS * 15)
 const MIN_DIST_FOLLOW = 2
 const MAX_DIST_FOLLOW = S(EARTH_RADIUS * 8)
+
+function rotateAroundY(pos: Position3D, angle: number): Position3D {
+  const c = Math.cos(angle); const s = Math.sin(angle)
+  return { x: pos.x * c + pos.z * s, y: pos.y, z: -pos.x * s + pos.z * c }
+}
+
+function RotatingEarthGroup({ children }: { children: React.ReactNode }) {
+  const groupRef = useRef<THREE.Group>(null)
+  const earthRotation = useSimulationStore((s) => s.earthRotation)
+  useFrame(() => { if (groupRef.current) groupRef.current.rotation.y = earthRotation })
+  return <group ref={groupRef}>{children}</group>
+}
 
 function TickController() {
   const tick = useSimulationStore((s) => s.tick)
@@ -37,6 +50,7 @@ function SceneContent() {
   const { camera } = useThree()
   const wasFollowingRef = useRef(false)
   const shiftRef = useRef(false)
+  const prevEarthRotRef = useRef(0)
 
   useEffect(() => {
     const onDown = (e: KeyboardEvent) => { if (e.key === 'Shift') shiftRef.current = true }
@@ -59,15 +73,31 @@ function SceneContent() {
   const getNodeById = useSimulationStore((s) => s.getNodeById)
 
   const visibleMessages = useMemo(() => messages.filter(m => m.linkBudget), [messages])
+  const earthRotation = useSimulationStore((s) => s.earthRotation)
+  const earthLockedView = useUIStore((s) => s.earthLockedView)
 
   useFrame((_, delta) => {
     const controls = controlsRef.current
     if (!controls) return
+
+    const deltaRot = earthRotation - prevEarthRotRef.current
+    prevEarthRotRef.current = earthRotation
+
+    if (earthLockedView && Math.abs(deltaRot) > 0.000001) {
+      const cosA = Math.cos(deltaRot); const sinA = Math.sin(deltaRot)
+      const cx = camera.position.x; const cz = camera.position.z
+      camera.position.x = cx * cosA + cz * sinA
+      camera.position.z = -cx * sinA + cz * cosA
+    }
+
     controls.zoomSpeed = shiftRef.current ? 1.5 : 0.25
     const follow = useSimulationStore.getState().followNodeId
     if (follow) {
       const node = getNodeById(follow)
-      if (node) { controls.target.set(S(node.position.x), S(node.position.y), S(node.position.z)); controls.update() }
+      if (node) {
+        const targetPos = node.type === 'groundStation' ? rotateAroundY(node.position, earthRotation) : node.position
+        controls.target.set(S(targetPos.x), S(targetPos.y), S(targetPos.z)); controls.update()
+      }
       if (!wasFollowingRef.current) { controls.minDistance = MIN_DIST_FOLLOW; controls.maxDistance = MAX_DIST_FOLLOW; wasFollowingRef.current = true }
     } else {
       if (wasFollowingRef.current) { controls.minDistance = MIN_DIST_DEFAULT; controls.maxDistance = MAX_DIST_DEFAULT; wasFollowingRef.current = false }
@@ -92,23 +122,27 @@ function SceneContent() {
       <Starfield />
       <group scale={1 / SCENE_SCALE}>
         <TickController />
-        <Earth onDoubleClick={handleDoubleClickEarth} />
-        <Atmosphere />
-        <WeatherParticles />
+        <RotatingEarthGroup>
+          <Earth onDoubleClick={handleDoubleClickEarth} />
+          <Atmosphere />
+          <WeatherParticles />
+          {groundStations.map((gs) => (
+            <group key={gs.id} onClick={(e) => { e.stopPropagation(); handleSelect(gs.id) }} onDoubleClick={(e) => { e.stopPropagation(); handleDoubleClickSat(gs.id) }}>
+              <GroundStation station={gs} isSelected={gs.id === selectedNodeId} isSource={gs.id === transmissionSourceId} isDest={gs.id === transmissionDestId} />
+            </group>
+          ))}
+        </RotatingEarthGroup>
         {satellites.map((sat) => (
           <group key={sat.id} onClick={(e) => { e.stopPropagation(); handleSelect(sat.id) }} onDoubleClick={(e) => { e.stopPropagation(); handleDoubleClickSat(sat.id) }}>
             <Satellite satellite={sat} isSelected={sat.id === selectedNodeId} isSource={sat.id === transmissionSourceId} isDest={sat.id === transmissionDestId} isFollowed={sat.id === followNodeId} />
           </group>
         ))}
-        {groundStations.map((gs) => (
-          <group key={gs.id} onClick={(e) => { e.stopPropagation(); handleSelect(gs.id) }} onDoubleClick={(e) => { e.stopPropagation(); handleDoubleClickSat(gs.id) }}>
-            <GroundStation station={gs} isSelected={gs.id === selectedNodeId} isSource={gs.id === transmissionSourceId} isDest={gs.id === transmissionDestId} />
-          </group>
-        ))}
         {visibleMessages.map((msg) => {
           const source = allNodes.find(n => n.id === msg.sourceId); const dest = allNodes.find(n => n.id === msg.destId)
           if (!source || !dest) return null
-          return <CommunicationLink key={msg.id} sourcePos={source.position} destPos={dest.position} progress={msg.progress / 100} status={msg.status} linkMargin={msg.linkBudget?.linkMargin ?? 0} />
+          const srcPos = source.type === 'groundStation' ? rotateAroundY(source.position, earthRotation) : source.position
+          const dstPos = dest.type === 'groundStation' ? rotateAroundY(dest.position, earthRotation) : dest.position
+          return <CommunicationLink key={msg.id} sourcePos={srcPos} destPos={dstPos} progress={msg.progress / 100} status={msg.status} linkMargin={msg.linkBudget?.linkMargin ?? 0} />
         })}
       </group>
       <OrbitControls ref={controlsRef} enableDamping dampingFactor={0.12} rotateSpeed={0.3} zoomSpeed={0.25} minDistance={MIN_DIST_DEFAULT} maxDistance={MAX_DIST_DEFAULT} autoRotate={false} enablePan={false} target={[0, 0, 0]} />
