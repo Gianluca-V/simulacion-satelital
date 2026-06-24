@@ -1,4 +1,6 @@
 import { useUIStore } from '../../stores/uiStore'
+import { SATELLITE_PRESETS } from '../../utils/constants'
+import type { OrbitType } from '../../types'
 
 export function HelpInstructions() {
   const show = useUIStore((s) => s.showHelp)
@@ -11,7 +13,7 @@ export function HelpInstructions() {
         <div style={styles.header}><span>🚀 Simulador de Comunicaciones Satelitales</span><button onClick={toggleHelp} style={styles.closeBtn}>✕</button></div>
         <div style={styles.content}>
           <Section title="🎯 Agregar nodos">
-            <p><b>➕ LEO / MEO / GEO</b> — añade satélites en órbita baja, media o geoestacionaria.</p>
+            <p><b>➕ LEO / MEO / GEO</b> — al hacer clic se despliega un menú vertical con presets de frecuencia y potencia. Cada preset define las características del satélite (ver sección "Presets satelitales").</p>
             <p><b>📡 ＋</b> — elige una ubicación preset para agregar una estación terrestre (Buenos Aires, Madrid, Hawái, Singapore).</p>
           </Section>
 
@@ -33,18 +35,31 @@ export function HelpInstructions() {
             <p>Al hacer clic en un mensaje del <b>📋 Historial</b> se abre su telemetría y se selecciona el nodo origen.</p>
           </Section>
 
-          <Section title="🌦 Clima — cómo afecta">
-            <p>Usá <b>🌦 Clima</b> para cambiar las condiciones. La atenuación atmosférica se aplica <b>siempre</b>, incluso en enlaces entre satélites:</p>
+          <Section title="🌦 Clima — cómo afecta al enlace">
+            <p>Usá <b>🌦 Clima</b> para cambiar las condiciones atmosféricas. La atenuación se compone de tres fenómenos (modelos ITU-R):</p>
+            <p><b>1. Absorción de gases (O₂ + vapor de agua)</b> — ITU-R P.676. El oxígeno produce atenuación base que crece con la frecuencia. El vapor de agua añade atenuación adicional proporcional a la densidad de vapor y al cuadrado de la frecuencia. A 4 GHz (banda C) la atenuación por gases es mínima (~0.04 dB); a 30 GHz (Ka) ya es notable (~0.7 dB en despejado, más del doble en tormenta por la alta densidad de vapor).</p>
+            <p><b>2. Atenuación por nubes</b> — ITU-R P.840. Depende del contenido de agua líquida en las nubes (g/m³). Es máximo en tormenta (3 g/m³) y mínimo en despejado (0 g/m³). Crece con la frecuencia: casi nula en banda L, baja en C (~0.1 dB con niebla), significativa en Ka (~1-2 dB con tormenta).</p>
+            <p><b>3. Atenuación por lluvia</b> — ITU-R P.838. Es el factor más perjudicial. La atenuación específica γ = k·R^α depende de la tasa de lluvia R (mm/h) y de coeficientes k, α que aumentan con la frecuencia. A bajas frecuencias (L, S, C) el efecto es leve; en Ku y especialmente Ka la lluvia puede interrumpir el enlace.</p>
+            <p style={{ fontSize: 10, color: '#667', marginTop: 6 }}>Validación experimental: Oros (2010) midió en Cochabamba atenuación total <b>&lt;2% a 4 GHz</b> durante 5 años, confirmando que banda C es altamente resiliente al clima. La misma investigación predice que a frecuencias superiores (Ku, Ka) la degradación es mucho mayor.</p>
             <div style={styles.table}>
-              <div style={styles.tr}><span style={styles.th}>Condición</span><span style={styles.th}>Atenuación aprox. (12 GHz)</span></div>
-              <div style={styles.tr}><span>Despejado</span><span>~0.2 dB (solo gases)</span></div>
-              <div style={styles.tr}><span>Lluvia ligera</span><span>~0.5–1 dB</span></div>
-              <div style={styles.tr}><span>Lluvia moderada</span><span>~2–4 dB</span></div>
-              <div style={styles.tr}><span>Tormenta</span><span>~8–12 dB</span></div>
-              <div style={styles.tr}><span>Niebla</span><span>~0.3–1 dB (nubes)</span></div>
+              <div style={{ ...styles.tr, justifyContent: 'flex-start', gap: 8 }}><span style={{ ...styles.th, minWidth: 115, flexShrink: 0 }}>Condición</span><span style={{ ...styles.th, minWidth: 60, flexShrink: 0 }}>Lluvia</span><span style={{ ...styles.th, minWidth: 55, flexShrink: 0 }}>Vapor</span><span style={{ ...styles.th, minWidth: 55, flexShrink: 0 }}>Nubes</span><span style={{ ...styles.th, minWidth: 45, flexShrink: 0 }}>Temp</span></div>
+              <div style={{ ...styles.tr, justifyContent: 'flex-start', gap: 8 }}><span style={{ minWidth: 115, flexShrink: 0 }}>☀ Despejado</span><span style={{ minWidth: 60, flexShrink: 0 }}>0 mm/h</span><span style={{ minWidth: 55, flexShrink: 0 }}>7.5</span><span style={{ minWidth: 55, flexShrink: 0 }}>0</span><span style={{ minWidth: 45, flexShrink: 0 }}>15 °C</span></div>
+              <div style={{ ...styles.tr, justifyContent: 'flex-start', gap: 8 }}><span style={{ minWidth: 115, flexShrink: 0 }}>🌦 Lluvia ligera</span><span style={{ minWidth: 60, flexShrink: 0 }}>2.5 mm/h</span><span style={{ minWidth: 55, flexShrink: 0 }}>10</span><span style={{ minWidth: 55, flexShrink: 0 }}>0.3</span><span style={{ minWidth: 45, flexShrink: 0 }}>12 °C</span></div>
+              <div style={{ ...styles.tr, justifyContent: 'flex-start', gap: 8 }}><span style={{ minWidth: 115, flexShrink: 0 }}>🌧 Lluvia moderada</span><span style={{ minWidth: 60, flexShrink: 0 }}>12.5 mm/h</span><span style={{ minWidth: 55, flexShrink: 0 }}>15</span><span style={{ minWidth: 55, flexShrink: 0 }}>0.8</span><span style={{ minWidth: 45, flexShrink: 0 }}>10 °C</span></div>
+              <div style={{ ...styles.tr, justifyContent: 'flex-start', gap: 8 }}><span style={{ minWidth: 115, flexShrink: 0 }}>🌧 Lluvia intensa</span><span style={{ minWidth: 60, flexShrink: 0 }}>25 mm/h</span><span style={{ minWidth: 55, flexShrink: 0 }}>20</span><span style={{ minWidth: 55, flexShrink: 0 }}>1.5</span><span style={{ minWidth: 45, flexShrink: 0 }}>8 °C</span></div>
+              <div style={{ ...styles.tr, justifyContent: 'flex-start', gap: 8 }}><span style={{ minWidth: 115, flexShrink: 0 }}>⛈ Tormenta</span><span style={{ minWidth: 60, flexShrink: 0 }}>50 mm/h</span><span style={{ minWidth: 55, flexShrink: 0 }}>25</span><span style={{ minWidth: 55, flexShrink: 0 }}>3.0</span><span style={{ minWidth: 45, flexShrink: 0 }}>6 °C</span></div>
+              <div style={{ ...styles.tr, justifyContent: 'flex-start', gap: 8 }}><span style={{ minWidth: 115, flexShrink: 0 }}>🌫 Niebla</span><span style={{ minWidth: 60, flexShrink: 0 }}>0 mm/h</span><span style={{ minWidth: 55, flexShrink: 0 }}>5</span><span style={{ minWidth: 55, flexShrink: 0 }}>0.5</span><span style={{ minWidth: 45, flexShrink: 0 }}>10 °C</span></div>
+              <div style={{ ...styles.tr, justifyContent: 'flex-start', gap: 8 }}><span style={{ minWidth: 115, flexShrink: 0 }}>❄ Nieve</span><span style={{ minWidth: 60, flexShrink: 0 }}>5 mm/h</span><span style={{ minWidth: 55, flexShrink: 0 }}>5</span><span style={{ minWidth: 55, flexShrink: 0 }}>0.2</span><span style={{ minWidth: 45, flexShrink: 0 }}>-2 °C</span></div>
             </div>
-            <p style={{ fontSize: 10, color: '#556', marginTop: 4 }}>Modelos ITU-R P.676 (gases), P.838 (lluvia), P.840 (nubes).</p>
-            <p>En enlaces con <b>estación terrestre</b>, la elevación del satélite afecta la longitud de la trayectoria atmosférica: a baja elevación hay más atenuación.</p>
+            <p style={{ fontSize: 10, color: '#556', marginTop: 4 }}>Atenuación total = gases + nubes + lluvia. A mayor frecuencia, más impacto. La elevación del satélite también importa: a baja elevación la señal atraviesa más atmósfera.</p>
+          </Section>
+
+          <Section title="🛰 Presets satelitales — características">
+            <p>Cada satélite se crea eligiendo un preset de frecuencia. El preset define <b>frecuencia (GHz)</b>, <b>potencia de transmisión (W)</b> y <b>ancho de banda (MHz)</b>. No se permiten valores libres: solo frecuencias reales con comportamiento validado.</p>
+            <PresetTable orbitType="LEO" />
+            <PresetTable orbitType="MEO" />
+            <PresetTable orbitType="GEO" />
+            <p style={{ fontSize: 10, color: '#667', marginTop: 8 }}>Los presets de <b>banda C (4 GHz)</b> están validados experimentalmente por la investigación de Oros (2010) sobre el enlace COMTECO/BRASILSAT B3 en Cochabamba: atenuación atmosférica total &lt;2% en todas las estaciones. La banda Ka (30 GHz) es la más sensible a condiciones meteorológicas adversas.</p>
           </Section>
 
           <Section title="📊 Telemetría — interpretación">
@@ -103,6 +118,27 @@ export function HelpInstructions() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) { return (<div style={styles.section}><div style={styles.sectionTitle}>{title}</div><div style={styles.sectionContent}>{children}</div></div>) }
 
+function PresetTable({ orbitType }: { orbitType: OrbitType }) {
+  const label: Record<OrbitType, string> = { LEO: 'LEO — Órbita baja (200-2000 km)', MEO: 'MEO — Órbita media (2000-35786 km)', GEO: 'GEO — Geoestacionaria (35786 km)' }
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#889', marginBottom: 4 }}>{label[orbitType]}</div>
+      <div style={styles.presetTable}>
+        <div style={styles.ptr}><span style={styles.pth}>Preset</span><span style={{ ...styles.pth, minWidth: 52 }}>Frec.</span><span style={{ ...styles.pth, minWidth: 48 }}>Pot.</span><span style={{ ...styles.pth, minWidth: 36 }}>BW</span><span style={{ ...styles.pth, minWidth: 'auto', flex: 1 }}>Uso</span></div>
+        {SATELLITE_PRESETS[orbitType].map((p) => (
+          <div key={p.label} style={styles.ptr}>
+            <span style={{ color: '#aac', minWidth: 102, flexShrink: 0 }}>{p.label}</span>
+            <span style={{ minWidth: 52, flexShrink: 0 }}>{p.frequency} GHz</span>
+            <span style={{ minWidth: 48, flexShrink: 0 }}>{p.txPower} W</span>
+            <span style={{ minWidth: 36, flexShrink: 0 }}>{(p.bandwidth / 1e6).toFixed(0)}</span>
+            <span style={{ color: '#889', flex: 1 }}>{p.description}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const styles: Record<string, React.CSSProperties> = {
   overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' },
   modal: { background: 'rgba(12, 20, 36, 0.97)', borderRadius: 14, border: '1px solid rgba(80, 140, 240, 0.2)', width: '90%', maxWidth: 640, maxHeight: '85vh', overflow: 'auto', padding: 0, boxShadow: '0 20px 60px rgba(0,0,0,0.5)' },
@@ -116,4 +152,7 @@ const styles: Record<string, React.CSSProperties> = {
   table: { display: 'flex', flexDirection: 'column', gap: 1, fontSize: 11, background: 'rgba(255,255,255,0.03)', borderRadius: 6, padding: '4px 8px', marginTop: 4 },
   tr: { display: 'flex', justifyContent: 'space-between', padding: '2px 0' },
   th: { color: '#778', fontWeight: 600 },
+  presetTable: { display: 'flex', flexDirection: 'column', gap: 1, fontSize: 10, background: 'rgba(255,255,255,0.02)', borderRadius: 4, padding: '3px 6px' },
+  ptr: { display: 'flex', padding: '2px 0', gap: 8 },
+  pth: { color: '#667', fontWeight: 600, minWidth: 102, flexShrink: 0 },
 }

@@ -1,4 +1,13 @@
-import type { FrequencyBandInfo, OrbitTypeInfo, WeatherCondition, WeatherState } from '../types'
+import type { FrequencyBandInfo, OrbitTypeInfo, WeatherCondition, WeatherState, OrbitType } from '../types'
+
+export interface SatellitePreset {
+  label: string
+  description: string
+  frequency: number
+  txPower: number
+  bandwidth: number
+  frequencyBand: string
+}
 
 export const EARTH_RADIUS = 6371
 export const SCENE_SCALE = 100
@@ -28,6 +37,25 @@ export const FREQUENCY_BANDS: FrequencyBandInfo[] = [
   { band: 'Ka', minFreq: 27.0, maxFreq: 40.0, label: 'Banda Ka (27-40 GHz)' },
   { band: 'V', minFreq: 40.0, maxFreq: 75.0, label: 'Banda V (40-75 GHz)' },
 ]
+
+export const SATELLITE_PRESETS: Record<OrbitType, SatellitePreset[]> = {
+  LEO: [
+    { label: 'C-band 4 GHz', description: 'Banda C · validado Oros 2010', frequency: 4, txPower: 10, bandwidth: 10e6, frequencyBand: 'C' },
+    { label: 'X-band 8.2 GHz', description: 'Observación terrestre', frequency: 8.2, txPower: 15, bandwidth: 20e6, frequencyBand: 'X' },
+    { label: 'Ku-band 12 GHz', description: 'Comunicaciones', frequency: 12, txPower: 10, bandwidth: 10e6, frequencyBand: 'Ku' },
+    { label: 'Ka-band 30 GHz', description: 'Alta capacidad · sensible a lluvia', frequency: 30, txPower: 5, bandwidth: 50e6, frequencyBand: 'Ka' },
+  ],
+  MEO: [
+    { label: 'L-band 1.575 GHz', description: 'GPS / GNSS', frequency: 1.575, txPower: 25, bandwidth: 2e6, frequencyBand: 'L' },
+    { label: 'C-band 5 GHz', description: 'Banda C', frequency: 5, txPower: 25, bandwidth: 10e6, frequencyBand: 'C' },
+    { label: 'Ku-band 14 GHz', description: 'Comunicaciones', frequency: 14, txPower: 25, bandwidth: 15e6, frequencyBand: 'Ku' },
+  ],
+  GEO: [
+    { label: 'C-band 4 GHz', description: 'COMTECO/BRASILSAT B3', frequency: 4, txPower: 50, bandwidth: 36e6, frequencyBand: 'C' },
+    { label: 'Ku-band 12 GHz', description: 'DBS / VSAT', frequency: 12, txPower: 50, bandwidth: 36e6, frequencyBand: 'Ku' },
+    { label: 'Ka-band 30 GHz', description: 'HTS · sensible a lluvia', frequency: 30, txPower: 100, bandwidth: 100e6, frequencyBand: 'Ka' },
+  ],
+}
 
 export const WEATHER_PARAMS: Record<WeatherCondition, Omit<WeatherState, 'condition'>> = {
   Clear: { rainRate: 0, waterVaporDensity: 7.5, cloudLiquidWater: 0, temperature: 15, humidity: 40, visibility: 50 },

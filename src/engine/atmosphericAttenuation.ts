@@ -1,10 +1,13 @@
-export function atmosphericGasAttenuation(freqGHz: number, humidity: number, temperature: number): number {
+export function atmosphericGasAttenuation(freqGHz: number, waterVaporDensity: number, temperature: number): number {
   const f = freqGHz
-  if (f < 1) return 0.01
-  if (f < 10) return 0.01 + (f - 1) * 0.01
-  if (f < 30) return 0.1 + (f - 10) * 0.03
-  if (f < 60) return 0.7 + (f - 30) * 0.04
-  return 1.9
+  let ao: number
+  if (f < 1) ao = 0.008
+  else if (f < 10) ao = 0.008 + (f - 1) * 0.008
+  else if (f < 30) ao = 0.08 + (f - 10) * 0.025
+  else if (f < 60) ao = 0.58 + (f - 30) * 0.035
+  else ao = 1.63
+  const aw = waterVaporDensity * (f / 20) * (f / 20) * 0.02
+  return ao + aw
 }
 
 export function rainAttenuation(freqGHz: number, rainRate: number, elevation: number): number {

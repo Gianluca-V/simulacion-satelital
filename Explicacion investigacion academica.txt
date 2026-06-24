@@ -1,0 +1,116 @@
+================================================================================
+EXPLICACION DEL PAPER ACADEMICO
+"Estudio de los factores atmosféricos que influyen en la degradación de calidad
+de un enlace satelital"
+Autora: Rossio Nathaly Oros Molina
+Publicado en: ACTA NOVA, Vol. 4, Nº 4, diciembre 2010
+================================================================================
+
+1. OBJETIVO DE LA INVESTIGACION
+   Determinar el grado de influencia de los factores atmosféricos (lluvia, nubes,
+   vapor de agua, oxígeno, etc.) sobre la calidad de un enlace satelital ubicado
+   sobre la ciudad de Cochabamba, Bolivia.
+
+2. CONTEXTO
+   - La atmósfera terrestre (especialmente la troposfera, los primeros ~10 km)
+     contiene gases, vapor de agua, nubes y precipitaciones que atenúan las
+     señales de radiofrecuencia.
+   - La troposfera es la capa donde ocurren todos los fenómenos meteorológicos
+     que componen el clima.
+   - Dependiendo de la frecuencia de operación y la intensidad del fenómeno, la
+     atenuación puede variar desde valores casi nulos hasta niveles que
+     interrumpen completamente la comunicación.
+
+3. METODOLOGIA
+   La autora desarrolló una aplicación en MATLAB que implementa 6 modelos de
+   atenuación basados en recomendaciones ITU-R (Unión Internacional de
+   Telecomunicaciones):
+
+   a) Atenuación por absorción de gases (ITU-R P.618)
+      - Causada por oxígeno (O2) y vapor de agua (H2O) en la atmósfera.
+      - Fórmula: At = Ao + Aw, donde Ao es atenuación por oxígeno y Aw por
+        vapor de agua.
+      - Depende de: frecuencia, temperatura, humedad y densidad de vapor.
+
+   b) Atenuación por nubes (modelos de Liebe y Staelin)
+      - Las nubes contienen gotas de agua líquida que atenúan la señal.
+      - Fórmula: At = alfa * Hci * 31, donde alfa es atenuación específica y
+        Hci es la extensión vertical de la nube.
+      - Tipos de nube y su contenido de agua:
+        * Cumulonimbus: 3.0 km vertical, 1.0 g/m3 de agua
+        * Cumulus:      2.0 km vertical, 0.6 g/m3 de agua
+        * Nimbostratus: 0.8 km vertical, 1.0 g/m3 de agua
+        * Stratus:      0.6 km vertical, 0.4 g/m3 de agua
+
+   c) Atenuación por lluvia (ITU-R P.618-8)
+      - Es el factor más perjudicial para comunicaciones satelitales.
+      - Fórmula: A = gamma * Le, donde gamma es atenuación específica (dB/km)
+        y Le es longitud efectiva del trayecto a través de la lluvia.
+      - Depende de: tasa de caída de lluvia R (mm/h), frecuencia y ángulo de
+        elevación.
+      - La NASA define regiones climáticas (A a H) con distintas tasas de
+        lluvia. Cochabamba se clasifica en una región de lluvia moderada.
+      - A mayor frecuencia, mayor atenuación por lluvia (las gotas dispersan
+        más la señal cuando su tamaño se aproxima a la longitud de onda).
+
+   d) Atenuación en la capa fundente (melting layer)
+      - Región donde nieve/hielo se derriten en gotas de lluvia (~0°C, 500 m
+        de espesor).
+      - Fórmula: Am = alfa_m * Lm
+      - Particularmente significativa para antenas con bajo ángulo de elevación.
+
+   e) Centelleos troposféricos (ITU-R P.618-8)
+      - Variaciones rápidas de la señal por cambios en el índice de refracción
+        de la troposfera.
+      - Depende de: estación del año, clima local, frecuencia y elevación.
+
+   f) Desvanecimiento por ángulo bajo
+      - Ocurre cuando el ángulo de elevación es menor a 5°.
+      - Causado por irregularidades a gran escala del índice de refracción.
+
+4. ENLACE SATELITAL ESTUDIADO
+   - Empresa: COMTECO (Cochabamba, Bolivia)
+   - Satélite: BRASILSAT B3
+   - Frecuencia de bajada: 4 GHz (Banda C)
+   - Diámetro de antena receptora: 7 m
+   - Ángulo de elevación: 61.06°
+   - Altitud de estación terrena: 2587 m.s.n.m.
+   - Ubicación: 17.38° S, 66.17° O
+
+5. RESULTADOS PRINCIPALES (periodo 2003-2007)
+   La atenuación atmosférica total máxima registrada fue de aproximadamente
+   2% de la potencia de la señal. Los valores máximos por fenómeno fueron:
+
+   - Capa fundente:  0.6548 dB (verano 2003 / otoño 2006)
+   - Nubes:          0.1814 dB (verano 2003)
+   - Lluvia:         0.0797 dB (verano 2003 / otoño 2006)
+   - Gases:          0.0470 dB (verano 2003)
+   - Centelleos:     0.0428 dB (verano/otoño 2003)
+
+   Patrón estacional:
+   - Verano: mayor atenuación (mayor humedad, temperatura y lluvias en
+     Cochabamba).
+   - Invierno: menor atenuación (ambiente más seco).
+   - La atenuación total nunca superó el 2% de degradación de la señal.
+
+6. CONCLUSIONES DE LA INVESTIGACION
+   - Los fenómenos atmosféricos en Cochabamba tienen bajo efecto sobre enlaces
+     satelitales en banda C (4 GHz), con atenuaciones por debajo del 2%.
+   - La lluvia y la capa fundente son los factores de mayor impacto.
+   - A frecuencias más altas (Ku, Ka), la atenuación sería significativamente
+     mayor debido a la interacción de las gotas de agua con longitudes de onda
+     más cortas.
+   - La herramienta desarrollada permite predecir el comportamiento de señales
+     satelitales para diferentes condiciones meteorológicas.
+
+7. RELEVANCIA PARA LA SIMULACION
+   Este paper proporciona la base teórica para los modelos de atenuación
+   implementados en la simulación satelital:
+   - La atenuación por gases sigue el modelo ITU-R P.618 (Ao + Aw).
+   - La atenuación por nubes sigue el modelo de Liebe/Staelin con contenido
+     de agua líquida.
+   - La atenuación por lluvia sigue ITU-R P.618-8 con tasas de lluvia basadas
+     en regiones climáticas.
+   - Los valores de los parámetros meteorológicos (humedad, temperatura,
+     densidad de vapor, tasa de lluvia, agua líquida en nubes) provienen de
+     los rangos identificados en esta investigación.

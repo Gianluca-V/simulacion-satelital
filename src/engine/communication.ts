@@ -18,7 +18,7 @@ export function simulateTransmission(msg: Message, source: SimNode, dest: SimNod
     elevation = computeElevation(ground.position, other.position)
   }
   const blocked = !(source.type === 'groundStation' || dest.type === 'groundStation') && isLineOfSightBlocked(source.position, dest.position)
-  const budget = calculateLinkBudget(source.txPower, source.txGain, dest.rxGain, freqGHz, dist, weather, elevation)
+  const budget = calculateLinkBudget(source.txPower, source.txGain, dest.rxGain, freqGHz, dist, weather, dest.bandwidth, elevation)
   const marginOk = budget.linkMargin > 0
   const success = marginOk && !blocked
   let failureReason: string | undefined

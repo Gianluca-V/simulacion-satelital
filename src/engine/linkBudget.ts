@@ -1,21 +1,21 @@
 import type { Position3D, WeatherState, LinkBudget } from '../types'
 import { distance3D, propagationDelay, orbitalElementsToPosition, degToRad, radToDeg } from '../utils/math'
-import { SPEED_OF_LIGHT, BOLTZMANN_CONST, EARTH_RADIUS, RECEIVER_NOISE_FIGURE, REFERENCE_NOISE_TEMP, DEFAULT_BANDWIDTH, DEFAULT_BITRATE, MIN_EB_NO, SATELLITE_VELOCITY_MS } from '../utils/constants'
+import { SPEED_OF_LIGHT, BOLTZMANN_CONST, EARTH_RADIUS, RECEIVER_NOISE_FIGURE, REFERENCE_NOISE_TEMP, DEFAULT_BITRATE, MIN_EB_NO, SATELLITE_VELOCITY_MS } from '../utils/constants'
 import { atmosphericGasAttenuation, rainAttenuation, cloudAttenuation } from './atmosphericAttenuation'
 
 function wattsToDBm(watts: number): number { return 10 * Math.log10(watts) + 30 }
 
-export function calculateLinkBudget(txPower: number, txGain: number, rxGain: number, freqGHz: number, distanceKm: number, weather: WeatherState, elevationDeg?: number): LinkBudget {
+export function calculateLinkBudget(txPower: number, txGain: number, rxGain: number, freqGHz: number, distanceKm: number, weather: WeatherState, bandwidthHz: number, elevationDeg?: number): LinkBudget {
   const freqHz = freqGHz * 1e9
   const fspl = 20 * Math.log10(distanceKm * 1000) + 20 * Math.log10(freqHz) + 20 * Math.log10(4 * Math.PI / SPEED_OF_LIGHT)
   const elev = elevationDeg ?? 5
-  const gasAtt = atmosphericGasAttenuation(freqGHz, weather.humidity, weather.temperature)
+  const gasAtt = atmosphericGasAttenuation(freqGHz, weather.waterVaporDensity, weather.temperature)
   const rainAtt = rainAttenuation(freqGHz, weather.rainRate, elev)
   const cloudAtt = cloudAttenuation(freqGHz, weather.cloudLiquidWater)
   const totalAtt = fspl + gasAtt + rainAtt + cloudAtt
   const txPowerDBm = wattsToDBm(txPower)
   const receivedPower = txPowerDBm + txGain + rxGain - totalAtt
-  const bwHz = DEFAULT_BANDWIDTH
+  const bwHz = bandwidthHz
   const noiseTemp = REFERENCE_NOISE_TEMP * (Math.pow(10, RECEIVER_NOISE_FIGURE / 10) - 1) + weather.temperature + 273.15
   const noisePower = 10 * Math.log10(BOLTZMANN_CONST * noiseTemp * bwHz) + 30
   const cNo = receivedPower - (10 * Math.log10(BOLTZMANN_CONST * noiseTemp) + 30)

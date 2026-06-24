@@ -1,4 +1,5 @@
 import { EARTH_RADIUS, GRAVITATIONAL_CONST, EARTH_MASS, SATELLITE_TX_POWERS, SAT_TX_GAIN, SAT_RX_GAIN, DEFAULT_BANDWIDTH, SAT_DEFAULT_FREQUENCY, DEFAULT_ALT_LEO, DEFAULT_ALT_MEO, DEFAULT_ALT_GEO, DEFAULT_INCL_LEO, DEFAULT_INCL_MEO, DEFAULT_INCL_GEO } from '../utils/constants'
+import type { SatellitePreset } from '../utils/constants'
 import type { OrbitalElements, Position3D, Satellite, OrbitType } from '../types'
 import { degToRad, orbitalElementsToPosition, orbitalVelocity, generateId } from '../utils/math'
 
@@ -28,12 +29,12 @@ export function propagateSatellite(sat: Satellite, elapsedMs: number): { positio
   return { position: orbitalElementsToPosition(propagated, 0), trueAnomaly: newTA }
 }
 
-export function createSatellite(orbitType: OrbitType, altitudeKm?: number, inclinationDeg?: number, raanDeg?: number): Satellite {
+export function createSatellite(orbitType: OrbitType, preset?: SatellitePreset, altitudeKm?: number, inclinationDeg?: number, raanDeg?: number): Satellite {
   const alt = altitudeKm ?? getDefaultAltitude(orbitType)
   const incl = inclinationDeg ?? getDefaultInclination(orbitType)
   const raan = raanDeg ?? Math.random() * 360
   const els = createOrbitalElements(orbitType, alt, incl, raan)
   const pos = orbitalElementsToPosition(els, 0)
   const vel = orbitalVelocity(els)
-  return { id: generateId(), name: `${orbitType}-${generateId().substring(0, 4)}`, type: 'satellite', orbitType, orbitalElements: els, position: pos, velocity: { x: 0, y: 0, z: vel }, altitude: alt, txPower: SATELLITE_TX_POWERS[orbitType], txGain: SAT_TX_GAIN, rxGain: SAT_RX_GAIN, frequency: SAT_DEFAULT_FREQUENCY, bandwidth: DEFAULT_BANDWIDTH, selected: false }
+  return { id: generateId(), name: preset ? `${orbitType}-${preset.frequencyBand}-${generateId().substring(0, 4)}` : `${orbitType}-${generateId().substring(0, 4)}`, type: 'satellite', orbitType, orbitalElements: els, position: pos, velocity: { x: 0, y: 0, z: vel }, altitude: alt, txPower: preset?.txPower ?? SATELLITE_TX_POWERS[orbitType], txGain: SAT_TX_GAIN, rxGain: SAT_RX_GAIN, frequency: preset?.frequency ?? SAT_DEFAULT_FREQUENCY, bandwidth: preset?.bandwidth ?? DEFAULT_BANDWIDTH, selected: false }
 }

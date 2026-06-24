@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import type { Satellite, GroundStation, SimNode, WeatherState, Message } from '../types'
+import type { Satellite, GroundStation, SimNode, WeatherState, Message, OrbitType } from '../types'
+import type { SatellitePreset } from '../utils/constants'
 import { DEFAULT_WEATHER, EARTH_RADIUS, GS_TX_POWER, GS_TX_GAIN, GS_RX_GAIN, DEFAULT_BANDWIDTH, GS_DEFAULT_FREQUENCY } from '../utils/constants'
 import { latLngToPosition } from '../utils/math'
 import { createSatellite, propagateSatellite } from '../engine/orbit'
@@ -20,7 +21,7 @@ interface SimulationState {
   transmissionSourceId: string | null
   transmissionDestId: string | null
 
-  addSatellite: (orbitType: 'LEO' | 'MEO' | 'GEO') => void
+  addSatellite: (orbitType: OrbitType, preset?: SatellitePreset) => void
   addGroundStation: (lat: number, lng: number) => void
   removeNode: (id: string) => void
   selectNode: (id: string | null) => void
@@ -50,7 +51,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   transmissionSourceId: null,
   transmissionDestId: null,
 
-  addSatellite: (orbitType) => { const sat = createSatellite(orbitType); set((state) => ({ satellites: [...state.satellites, sat] })) },
+  addSatellite: (orbitType, preset) => { const sat = createSatellite(orbitType, preset); set((state) => ({ satellites: [...state.satellites, sat] })) },
   addGroundStation: (lat, lng) => {
     const pos = latLngToPosition(lat, lng, EARTH_RADIUS)
     const gs: GroundStation = { id: `gs-${Date.now()}`, name: `GS-${Math.round(lat)}-${Math.round(lng)}`, type: 'groundStation', lat, lng, position: pos, txPower: GS_TX_POWER, txGain: GS_TX_GAIN, rxGain: GS_RX_GAIN, frequency: GS_DEFAULT_FREQUENCY, bandwidth: DEFAULT_BANDWIDTH, selected: false }
