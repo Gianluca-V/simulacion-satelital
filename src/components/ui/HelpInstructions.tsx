@@ -20,7 +20,7 @@ export function HelpInstructions() {
           <Section title="🖱 Navegar la escena 3D">
             <p><b>Arrastrar</b> con el mouse para rotar la vista.</p>
             <p><b>Rueda</b> para acercar/alejar. <b>Shift + rueda</b> para zoom 6× más rápido.</p>
-            <p><b>🌍 Bloquear vista a Tierra</b> — la cámara gira solidaria con la Tierra. Los satélites orbitan alrededor de una Tierra fija, como se vería desde la superficie terrestre.</p>
+            <p><b>🌍 Bloquear vista a Tierra</b> — la cámara orbita solidaria con la rotación terrestre. La Tierra parece fija y los satélites orbitan a su alrededor como se vería desde la superficie. Ideal para observar satélites GEO (aparecen quietos sobre el mismo punto) y comparar órbitas LEO/MEO. Al hacer doble clic en un satélite con esta vista activa, la cámara lo sigue manteniendo el ángulo hacia la Tierra.</p>
             <p><b>Doble clic</b> en un satélite → la cámara lo sigue automáticamente.</p>
             <p><b>Doble clic</b> en la Tierra → vuelve a la vista general.</p>
           </Section>
