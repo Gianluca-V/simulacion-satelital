@@ -1,7 +1,6 @@
 import type { SimNode, Message, WeatherState } from '../types'
 import { distance3D, generateId } from '../utils/math'
 import { calculateLinkBudget, isLineOfSightBlocked, computeElevation } from './linkBudget'
-import { EARTH_RADIUS } from '../utils/constants'
 
 export function createMessage(source: SimNode, dest: SimNode, content: string): Message {
   const sizeBytes = new TextEncoder().encode(content).length
@@ -12,18 +11,29 @@ export function simulateTransmission(msg: Message, source: SimNode, dest: SimNod
   const dist = distance3D(source.position, dest.position)
   const freqGHz = source.frequency
   let elevation: number | undefined
-  if (source.type === 'groundStation' || dest.type === 'groundStation') {
+  let blocked = false
+  let blockReason = ''
+
+  if (source.type === 'groundStation' && dest.type === 'groundStation') {
+    blocked = isLineOfSightBlocked(source.position, dest.position)
+    if (blocked) blockReason = 'Sin línea de visión: la curvatura terrestre bloquea el enlace entre las bases'
+  } else if (source.type === 'groundStation' || dest.type === 'groundStation') {
     const ground = source.type === 'groundStation' ? source : dest
     const other = source.type === 'groundStation' ? dest : source
     elevation = computeElevation(ground.position, other.position)
+    blocked = elevation <= 0
+    if (blocked) blockReason = 'Sin línea de visión: el satélite está bajo el horizonte desde la base terrestre'
+  } else {
+    blocked = isLineOfSightBlocked(source.position, dest.position)
+    if (blocked) blockReason = 'Sin línea de visión: la Tierra bloquea el enlace entre los satélites'
   }
-  const blocked = !(source.type === 'groundStation' || dest.type === 'groundStation') && isLineOfSightBlocked(source.position, dest.position)
+
   const budget = calculateLinkBudget(source.txPower, source.txGain, dest.rxGain, freqGHz, dist, weather, dest.bandwidth, elevation)
   const marginOk = budget.linkMargin > 0
   const success = marginOk && !blocked
   let failureReason: string | undefined
   if (!success) {
-    if (blocked) failureReason = 'Sin línea de visión: la Tierra bloquea el enlace entre los satélites'
+    if (blocked) failureReason = blockReason
     else if (!marginOk) failureReason = `Margen de enlace insuficiente (${budget.linkMargin.toFixed(1)} dB): la atenuación total supera la potencia disponible`
   }
   return { message: { ...msg, status: success ? 'completed' : 'failed', linkBudget: budget, failureReason }, budget }
