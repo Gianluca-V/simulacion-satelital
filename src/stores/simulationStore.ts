@@ -23,7 +23,7 @@ interface SimulationState {
   transmissionDestId: string | null
 
   addSatellite: (orbitType: OrbitType, preset?: SatellitePreset) => void
-  addGroundStation: (lat: number, lng: number) => void
+  addGroundStation: (lat: number, lng: number, name: string) => void
   removeNode: (id: string) => void
   selectNode: (id: string | null) => void
   followNode: (id: string | null) => void
@@ -54,9 +54,11 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   transmissionDestId: null,
 
   addSatellite: (orbitType, preset) => { const sat = createSatellite(orbitType, preset); set((state) => ({ satellites: [...state.satellites, sat] })) },
-  addGroundStation: (lat, lng) => {
+  addGroundStation: (lat, lng, name) => {
+    const existing = get().groundStations.find(g => g.lat === lat && g.lng === lng)
+    if (existing) return
     const pos = latLngToPosition(lat, lng, EARTH_RADIUS)
-    const gs: GroundStation = { id: `gs-${Date.now()}`, name: `GS-${Math.round(lat)}-${Math.round(lng)}`, type: 'groundStation', lat, lng, position: pos, txPower: GS_TX_POWER, txGain: GS_TX_GAIN, rxGain: GS_RX_GAIN, frequency: GS_DEFAULT_FREQUENCY, bandwidth: DEFAULT_BANDWIDTH, selected: false }
+    const gs: GroundStation = { id: `gs-${Date.now()}`, name, type: 'groundStation', lat, lng, position: pos, txPower: GS_TX_POWER, txGain: GS_TX_GAIN, rxGain: GS_RX_GAIN, frequency: GS_DEFAULT_FREQUENCY, bandwidth: DEFAULT_BANDWIDTH, selected: false }
     set((state) => ({ groundStations: [...state.groundStations, gs] }))
   },
   removeNode: (id) => set((state) => ({ satellites: state.satellites.filter(s => s.id !== id), groundStations: state.groundStations.filter(g => g.id !== id), selectedNodeId: state.selectedNodeId === id ? null : state.selectedNodeId, followNodeId: state.followNodeId === id ? null : state.followNodeId, transmissionSourceId: state.transmissionSourceId === id ? null : state.transmissionSourceId, transmissionDestId: state.transmissionDestId === id ? null : state.transmissionDestId })),

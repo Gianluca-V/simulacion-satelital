@@ -14,6 +14,7 @@ const GS_PRESETS = [
 export function Toolbar() {
   const addSatellite = useSimulationStore((s) => s.addSatellite)
   const addGroundStation = useSimulationStore((s) => s.addGroundStation)
+  const groundStations = useSimulationStore((s) => s.groundStations)
   const isPaused = useSimulationStore((s) => s.isPaused)
   const setPaused = useSimulationStore((s) => s.setPaused)
   const speed = useSimulationStore((s) => s.speed)
@@ -49,7 +50,7 @@ export function Toolbar() {
           )}
         </div>
         <ToolBtn label="📡 ＋" onClick={() => { setShowGS(!showGS); setShowSatMenu(null) }} active={showGS} color="#88dd88" />
-        {showGS && <div style={styles.gsMenu}>{GS_PRESETS.map((gs) => (<button key={gs.name} onClick={() => { addGroundStation(gs.lat, gs.lng); setShowGS(false) }} style={styles.gsBtn}>{gs.name}</button>))}</div>}
+        {showGS && <div style={styles.gsMenu}>{GS_PRESETS.map((gs) => { const placed = groundStations.some(g => g.lat === gs.lat && g.lng === gs.lng); if (placed) return null; return (<button key={gs.name} onClick={() => { addGroundStation(gs.lat, gs.lng, gs.name); setShowGS(false) }} style={styles.gsBtn}>{gs.name}</button>) })}{GS_PRESETS.every(gs => groundStations.some(g => g.lat === gs.lat && g.lng === gs.lng)) && <span style={{ fontSize: 10, color: '#556', padding: '4px' }}>Todas las bases agregadas</span>}</div>}
         <Divider />
         <ToolBtn label={isPaused ? '▶' : '⏸'} onClick={() => setPaused(!isPaused)} color="#ffaa00" active={isPaused} />
         <ToolBtn label="🌍" onClick={toggleEarthLockedView} active={earthLockedView} color="#44ddff" />
