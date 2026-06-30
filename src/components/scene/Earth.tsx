@@ -59,7 +59,7 @@ export function Earth({ onDoubleClick }: EarthProps) {
   }, [weather.condition])
 
   return (
-    <group onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick?.() }} rotation={[0, -5 * Math.PI / 180, 0]}>
+    <group onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick?.() }} rotation={[0, -4 * Math.PI / 180, 0]}>
       <mesh>
         <sphereGeometry args={[EARTH_RADIUS, 80, 80]} />
         <meshPhongMaterial map={dayTex} bumpMap={bumpTex} bumpScale={0.04} specular={new THREE.Color(0x222244)} shininess={8} color={weatherTint} transparent={weather.condition !== 'Clear'} opacity={weather.condition === 'Storm' ? 0.75 : 1} />
