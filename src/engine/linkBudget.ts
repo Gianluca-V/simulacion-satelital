@@ -46,5 +46,5 @@ export function computeElevation(groundPos: Position3D, otherPos: Position3D): n
   const losMag = Math.sqrt(losX * losX + losY * losY + losZ * losZ)
   if (losMag === 0) return 90
   const cosZenith = (losX * rx + losY * ry + losZ * rz) / losMag
-  return Math.max(0, 90 - radToDeg(Math.acos(Math.max(-1, Math.min(1, cosZenith)))))
+  return 90 - radToDeg(Math.acos(Math.max(-1, Math.min(1, cosZenith))))
 }

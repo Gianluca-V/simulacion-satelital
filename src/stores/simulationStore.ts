@@ -70,7 +70,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   updateMessage: (id, updates) => set((state) => ({ messages: state.messages.map(m => m.id === id ? { ...m, ...updates } : m) })),
   setTransmissionSource: (id) => set({ transmissionSourceId: id }),
   setTransmissionDest: (id) => set({ transmissionDestId: id }),
-  tick: (deltaMs) => { const state = get(); if (state.isPaused) return; const earthAngle = deltaMs * EARTH_ROTATION_RATE; set({ satellites: state.satellites.map(sat => { const { position, trueAnomaly } = propagateSatellite(sat, deltaMs); return { ...sat, position, orbitalElements: { ...sat.orbitalElements, trueAnomaly } } }), time: state.time + deltaMs, earthRotation: state.earthRotation + earthAngle }) },
+  tick: (deltaMs) => { const state = get(); if (state.isPaused) return; const earthAngle = deltaMs * EARTH_ROTATION_RATE; const cosA = Math.cos(earthAngle); const sinA = Math.sin(earthAngle); set({ satellites: state.satellites.map(sat => { const { position, trueAnomaly } = propagateSatellite(sat, deltaMs); return { ...sat, position, orbitalElements: { ...sat.orbitalElements, trueAnomaly } } }), groundStations: state.groundStations.map(gs => ({ ...gs, position: { x: gs.position.x * cosA + gs.position.z * sinA, y: gs.position.y, z: -gs.position.x * sinA + gs.position.z * cosA } })), time: state.time + deltaMs, earthRotation: state.earthRotation + earthAngle }) },
   setPaused: (paused) => set({ isPaused: paused }),
   setSpeed: (speed) => set({ speed }),
   getNodeById: (id) => get().satellites.find(s => s.id === id) || get().groundStations.find(g => g.id === id),
