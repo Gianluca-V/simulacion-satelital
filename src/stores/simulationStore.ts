@@ -57,7 +57,10 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   addGroundStation: (lat, lng, name) => {
     const existing = get().groundStations.find(g => g.lat === lat && g.lng === lng)
     if (existing) return
-    const pos = latLngToPosition(lat, lng, EARTH_RADIUS)
+    const rawPos = latLngToPosition(lat, lng, EARTH_RADIUS)
+    const angle = get().earthRotation
+    const cosA = Math.cos(angle); const sinA = Math.sin(angle)
+    const pos = { x: rawPos.x * cosA + rawPos.z * sinA, y: rawPos.y, z: -rawPos.x * sinA + rawPos.z * cosA }
     const gs: GroundStation = { id: `gs-${Date.now()}`, name, type: 'groundStation', lat, lng, position: pos, txPower: GS_TX_POWER, txGain: GS_TX_GAIN, rxGain: GS_RX_GAIN, frequency: GS_DEFAULT_FREQUENCY, bandwidth: DEFAULT_BANDWIDTH, selected: false }
     set((state) => ({ groundStations: [...state.groundStations, gs] }))
   },
